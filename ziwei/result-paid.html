@@ -289,6 +289,13 @@ body {
     <p class="palace-hint-block" id="palace-hint"></p>
   </div>
 
+  <!-- 當前大限 -->
+  <div class="section-card" id="decadal-section" style="display:none;">
+    <p class="section-label">當前大限 · 本十年靈魂課題</p>
+    <div id="decadal-meta" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;"></div>
+    <p class="section-body" id="decadal-body"></p>
+  </div>
+
   <!-- Divider -->
   <div class="section-divider"><span class="divider-label">完整 12 宮解讀</span></div>
 
@@ -324,6 +331,60 @@ body {
 
 <script src="stars-data.js"></script>
 <script>
+// ═══════════════════════════════════════════════
+//  大限宮位詮釋（12 宮 × 莫子觀點）
+// ═══════════════════════════════════════════════
+const DECADAL_CONTENT = {
+  '命宮': {
+    theme: '自我重整',
+    body: `大限行至命宮，這十年是你靈魂最直接的「自我校正」期。你的核心驅動、慣性模式，在這個大限裡會被放大、被看見，甚至被迫重新定義。\n\n這不是一個輕鬆的十年。你會在這段時間裡，遇到讓你不得不回頭問自己「我到底是誰」的人和事。有時候是一次重大的失去，有時候是一段關係的破裂，有時候只是某個清晨突然的空洞感。\n\n命宮大限的課題：不是「做什麼」，而是「成為誰」。莫子說：命盤不是在告訴你答案，是在告訴你，這十年你的靈魂帶著什麼課題來。`
+  },
+  '兄弟宮': {
+    theme: '資源與平輩',
+    body: `大限行至兄弟宮，這十年你的能量場圍繞著「平輩關係」和「資源共享」流動。手足、同事、合夥人、同齡朋友——這些關係在這個大限裡，是你最重要的鏡子和考題。\n\n你會在這十年裡，在合作或競爭中學到一些你一個人學不到的事。有人會成為你的助力，有人會成為你的考驗。不管哪一種，都是在教你一件事：如何在「平等」的關係裡真正給予，而不是掌控或者退縮。\n\n這十年也是你財富和資源流動的活躍期——跟人合作，可能比單打獨鬥更有爆發力。`
+  },
+  '夫妻宮': {
+    theme: '親密關係',
+    body: `大限行至夫妻宮，這十年親密關係是你最大的靈魂學校。不管你現在的感情狀態是什麼，這個大限都會把你的「親密關係慣性」推到最前面，讓你看見、讓你感受。\n\n這十年裡，你可能會遇到一段讓你重新定義「愛」的關係；或者一段舊的關係在這個大限裡走到了它該走的地方。不管是相遇還是分離，都是靈魂選擇的學習方式。\n\n莫子說：夫妻宮大限的課題，不是「找到對的人」，而是「成為一個能真正連結的人」。你的伴侶，是你潛意識慣性最精準的鏡子。`
+  },
+  '子女宮': {
+    theme: '創造與傳承',
+    body: `大限行至子女宮，這十年的核心能量圍繞著「創造、作品和下一代」展開。你的創造力在這個大限裡特別活躍——可能是你開始做出讓你自己都驚訝的作品，也可能是你與孩子（或內在孩子）的關係發生了深刻的轉化。\n\n子女宮大限也常常是事業上「孕育出新東西」的時期——一個品牌、一個計畫、一個從零開始的創作。你在這十年裡，有能力生出很多東西。問題不是「生不生得出來」，而是你願不願意給它時間長大，而不是半途而廢。\n\n這十年的功課：允許你的創造物，有自己的生命。`
+  },
+  '財帛宮': {
+    theme: '財富與豐盛',
+    body: `大限行至財帛宮，這十年你與金錢和豐盛的關係是主旋律。這個大限的財務能量通常比平時活躍——可能是收入的增加，也可能是你第一次認真面對自己與錢的關係。\n\n但財帛宮大限不只是「賺更多錢」——它更深的課題是：你對「豐盛」的信念是什麼？你相信自己值得嗎？你在豐盛到來的時候，能接得住，還是找理由把它推走？\n\n莫子說：財帛宮大限常常是靈魂在考你「允許自己接受」的能力，而不只是「努力創造」的能力。值得是你的預設值，不是你要靠拼命去證明的事。`
+  },
+  '疾厄宮': {
+    theme: '身體與能量',
+    body: `大限行至疾厄宮，這十年你的身體和能量狀態是這個大限最直接的指標。這個大限不是說你會生病——而是說你的身體，會成為你最誠實的鏡子，告訴你你的能量在哪裡堵住了、你的情緒在哪裡沒有流動。\n\n如果你在這個大限裡常常疲憊、容易生病，或者有某個部位反覆發出訊號，那都是訊息，不是懲罰。你的身體想告訴你：你在哪裡違背了自己。\n\n這十年的功課：學會聽身體說話。不是靠意志力壓制，而是好好回應它。你的健康不只是身體的事，是你整個生命能量系統的反射。`
+  },
+  '遷移宮': {
+    theme: '外部世界',
+    body: `大限行至遷移宮，這十年你的生命能量往「外部世界」流動——可能是真實的地理移動（搬遷、出國、跨城市發展），也可能是你的人生舞台從「熟悉的地方」擴展到了「陌生的領域」。\n\n遷移宮大限是你的「出外運」最旺的時期之一。你在陌生環境裡的表現，往往比在熟悉環境裡更有爆發力。這十年，可以考慮讓自己「移動」——不一定是搬家，而是讓你的視野和圈子突破原來的邊界。\n\n這十年的課題：走出去，不是逃跑，而是靈魂需要更大的舞台來完成它在這一世的學習。`
+  },
+  '交友宮': {
+    theme: '人際與貴人',
+    body: `大限行至交友宮，這十年你的人際網絡和「貴人關係」是命運流動的主要管道。你的貴人，在這個大限裡最容易出現——可能是一個改變你方向的人、一段帶給你機會的合作、或者是一個讓你看見自己的朋友。\n\n但交友宮大限也是考驗你「識人」能力的時期。你在這十年裡遇到的人，不一定每一個都是好人——有些是來幫你成長的，有些是來考驗你的。慧眼識人，是這個大限的功課。\n\n莫子說：你的人脈，是你能量場的反射。這十年，你吸引什麼樣的人進入你的生命，取決於你自己在哪個頻率上。`
+  },
+  '事業宮': {
+    theme: '天賦與事業',
+    body: `大限行至事業宮（官祿宮），這十年是你在工作和天賦發揮上最活躍的時期之一。你的職業能量在這個大限裡流動得特別強——可能是你迎來了事業上的突破，或者是你終於找到了「這才是我應該做的事」的方向。\n\n事業宮大限也是讓你面對「名譽與地位」的時期。你在這十年裡的工作成就，往往比其他時期更容易被看見、被認可。這是一個值得認真投入、值得放膽嘗試的大限。\n\n這十年的課題：不是追求一個職稱，而是找到一種工作方式，讓你的靈魂在其中感到真實的意義。`
+  },
+  '田宅宮': {
+    theme: '家庭與根基',
+    body: `大限行至田宅宮，這十年「家」和「根基」是你的核心課題。可能是你在這個大限裡購置了房產，也可能是你和原生家庭的關係發生了深刻的轉化；或者你正在建立一個真正屬於自己的「家」——不只是地理意義上的，而是心理意義上的歸屬感。\n\n田宅宮大限是一個「紮根」的大限。你的靈魂在這十年裡，需要有一個可以落腳的地方，需要感覺到穩定和安全。如果這十年你的住所或家庭關係動盪，往往是在逼你去建立一個更真實的根基。\n\n這十年的課題：家不只是一個地址，是你願意讓自己真正停下來的地方。`
+  },
+  '福德宮': {
+    theme: '內心與靈性',
+    body: `大限行至福德宮，這十年你的內心世界和精神狀態是主旋律。這個大限往往是你開始真正「往內走」的時期——你可能會對靈性探索、冥想、心理成長、或者生命意義的問題，產生比以前深得多的興趣。\n\n福德宮大限是一個讓你「找到真正快樂」的大限，但這條路通常不是外求，而是內找。你可能會在這十年裡，放下一些你一直以為讓你快樂的事，然後發現真正讓你安靜而滿足的，是更深的東西。\n\n莫子說：福德宮大限是靈魂主動要求休息的時期。這十年最大的功課，是學習「不做什麼」，而不是「又要做什麼」。`
+  },
+  '父母宮': {
+    theme: '原生家庭與權威',
+    body: `大限行至父母宮，這十年你與「原生家庭」、「父母關係」和「權威」的課題會被推到前台。可能是你的父母在這個大限裡需要你的照顧，也可能是你在這個大限裡終於有能力回頭，看清楚你從家庭帶出來的那些模式。\n\n父母宮大限常常是一個「和解」的大限——和父母和解，或者更深層地，和你從父母那裡繼承下來的信念系統和解。你不一定需要去找他們說什麼，但你需要在內心裡，讓那些舊的故事有個更完整的結局。\n\n這十年的課題：你不需要成為你父母所期待的樣子，才有資格活出自己的人生。`
+  }
+};
+
 // ═══════════════════════════════════════════════
 //  12 宮 × 14 主星  詮釋資料庫
 // ═══════════════════════════════════════════════
@@ -682,6 +743,65 @@ async function buildPalaceGrid() {
           mutagen: s.mutagen
         }));
         palaceStars[pName] = { stars: mainStars, hua: huaStars };
+      }
+
+      // ── 大限計算 ──
+      try {
+        const currentYear = new Date().getFullYear();
+        const birthYear = parseInt(year);
+        const currentAge = currentYear - birthYear;
+
+        // 逐宮檢查 decadal range
+        const allPalaceKeys = ['命宮','兄弟宮','夫妻宮','子女宮','財帛宮','疾厄宮',
+                               '遷移宮','交友宮','官祿宮','田宅宮','福德宮','父母宮'];
+        let decadalInfo = null;
+
+        for (const pk of allPalaceKeys) {
+          const p = astrolabe.palace(pk);
+          const range = p?.decadal?.range;
+          if (range && currentAge >= range[0] && currentAge < range[1]) {
+            const displayName = pk === '官祿宮' ? '事業宮' : pk;
+            const dStars = (p.decadal?.majorStars || p.majorStars || [])
+              .filter(s => s.type === 'major').map(s => s.name.replace('星',''));
+            const dHua = (p.decadal?.majorStars || [])
+              .filter(s => s.mutagen)
+              .map(s => ({ name: s.name.replace('星',''), mutagen: s.mutagen }));
+            decadalInfo = { palaceName: displayName, range, stars: dStars, hua: dHua };
+            break;
+          }
+        }
+
+        if (decadalInfo) {
+          const content = DECADAL_CONTENT[decadalInfo.palaceName] || DECADAL_CONTENT['命宮'];
+          const huaMap = { '化祿':'hua-lu','化權':'hua-quan','化科':'hua-ke','化忌':'hua-ji' };
+          const huaEmoji = { '化祿':'🟢','化權':'🔵','化科':'🟡','化忌':'🔴' };
+
+          const metaEl = document.getElementById('decadal-meta');
+          metaEl.innerHTML = `
+            <span class="palace-star-tag" style="font-size:13px;padding:5px 14px;">
+              ${decadalInfo.palaceName}大限
+            </span>
+            <span style="font-size:12px;color:rgba(255,255,255,.3);">
+              ${decadalInfo.range[0]}–${decadalInfo.range[1]} 歲
+            </span>
+            ${decadalInfo.stars.length > 0
+              ? `<span class="palace-star-tag">${decadalInfo.stars.join('、')}星</span>`
+              : ''}
+            ${decadalInfo.hua.map(h =>
+              `<span class="hua-tag ${huaMap[h.mutagen]||''}">${huaEmoji[h.mutagen]||''}${h.name}${h.mutagen}</span>`
+            ).join('')}
+          `;
+
+          const themeEl = document.createElement('span');
+          themeEl.style.cssText = 'font-size:11px;letter-spacing:2px;color:rgba(167,139,250,.5);text-transform:uppercase;margin-left:4px;';
+          themeEl.textContent = content.theme;
+          metaEl.appendChild(themeEl);
+
+          document.getElementById('decadal-body').textContent = content.body;
+          document.getElementById('decadal-section').style.display = 'block';
+        }
+      } catch(decErr) {
+        console.warn('大限計算失敗', decErr);
       }
 
       // 也收集命宮的四化
