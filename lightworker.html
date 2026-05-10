@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>你是哪種光之工作者？｜9種靈魂使命測驗</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg:#07070f; --border:rgba(255,255,255,.11);
+  --muted:rgba(255,255,255,.42); --accent:#a78bfa;
+}
+body {
+  background:var(--bg); color:#e8e8f0;
+  font-family:'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif;
+  min-height:100vh; overflow-x:hidden;
+}
+#wave-canvas {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  z-index:0; pointer-events:none; opacity:.28;
+}
+.screen {
+  position:relative; z-index:1; min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:28px 16px;
+}
+.screen.hidden { display:none; }
+
+.back-link {
+  position:fixed; top:20px; left:20px; z-index:10;
+  font-size:13px; color:var(--muted); text-decoration:none;
+  display:flex; align-items:center; gap:6px; transition:color .2s;
+}
+.back-link:hover { color:#e8e8f0; }
+
+/* ── Intro ── */
+.badge { font-size:11px; letter-spacing:2.5px; color:var(--accent); text-transform:uppercase; margin-bottom:16px; opacity:.85; }
+.intro-icon { font-size:72px; margin-bottom:10px; animation:float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.intro-title {
+  font-size:clamp(24px,5vw,44px); font-weight:700;
+  text-align:center; line-height:1.25; margin-bottom:10px;
+  background:linear-gradient(135deg,#fff 0%,#c4b5fd 60%,#a78bfa 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.intro-sub { font-size:14px; color:var(--muted); text-align:center; line-height:1.75; max-width:340px; margin-bottom:28px; }
+
+/* 9 types preview */
+.types-preview {
+  display:flex; flex-wrap:wrap; gap:8px;
+  justify-content:center; max-width:400px; margin-bottom:36px;
+}
+.type-chip {
+  background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.2);
+  border-radius:99px; padding:5px 13px;
+  font-size:12px; color:rgba(196,181,253,.85);
+}
+
+.btn-primary {
+  background:linear-gradient(135deg,#8b6fff,#7c3aed);
+  color:#fff; border:none; border-radius:14px;
+  padding:16px 48px; font-size:17px; font-weight:600;
+  cursor:pointer; transition:all .25s;
+  box-shadow:0 4px 24px rgba(139,92,246,.4);
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(139,92,246,.55); }
+.btn-ghost {
+  background:transparent; color:var(--muted); border:1px solid var(--border);
+  border-radius:12px; padding:12px 32px; font-size:14px;
+  cursor:pointer; transition:all .2s; margin-top:10px;
+  text-decoration:none; display:inline-block; text-align:center;
+}
+.btn-ghost:hover { border-color:rgba(255,255,255,.3); color:#e8e8f0; }
+
+/* ── Quiz ── */
+.progress-wrap { width:100%; max-width:560px; margin-bottom:22px; }
+.progress-meta { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:7px; }
+.progress-bg { height:4px; background:rgba(255,255,255,.07); border-radius:4px; overflow:hidden; }
+.progress-fill {
+  height:100%; border-radius:4px;
+  background:linear-gradient(90deg,#8b6fff,#c4b5fd);
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+.q-card {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:20px; padding:26px 24px;
+  max-width:560px; width:100%; margin-bottom:14px;
+}
+.q-num { font-size:11px; letter-spacing:2px; color:var(--accent); margin-bottom:9px; }
+.q-text { font-size:clamp(15px,2.8vw,19px); font-weight:600; line-height:1.5; color:#fff; }
+.opts-list { display:flex; flex-direction:column; gap:9px; max-width:560px; width:100%; }
+.opt {
+  background:rgba(255,255,255,.04); border:1.5px solid var(--border);
+  border-radius:14px; padding:14px 18px; cursor:pointer;
+  transition:all .2s; font-size:14.5px; line-height:1.5;
+  color:#e8e8f0; text-align:left;
+  display:flex; align-items:flex-start; gap:11px;
+}
+.opt:hover { background:rgba(139,111,255,.12); border-color:rgba(139,111,255,.5); color:#fff; }
+.opt.selected { background:rgba(139,111,255,.2); border-color:#8b6fff; color:#fff; }
+.opt-dot {
+  width:18px; height:18px; border-radius:50%; border:2px solid var(--border);
+  flex-shrink:0; margin-top:2px; transition:all .2s;
+  display:flex; align-items:center; justify-content:center;
+}
+.opt.selected .opt-dot { border-color:#8b6fff; background:#8b6fff; }
+.opt.selected .opt-dot::after { content:''; width:7px; height:7px; border-radius:50%; background:#fff; }
+.next-wrap { max-width:560px; width:100%; margin-top:6px; }
+.btn-next {
+  width:100%; background:linear-gradient(135deg,#8b6fff,#7c3aed);
+  color:#fff; border:none; border-radius:14px;
+  padding:15px; font-size:16px; font-weight:600; cursor:pointer;
+  transition:all .25s; opacity:0; pointer-events:none;
+  box-shadow:0 4px 20px rgba(139,92,246,.3);
+}
+.btn-next.visible { opacity:1; pointer-events:all; }
+.btn-next:hover { transform:translateY(-1px); }
+
+/* ── Result ── */
+.res-wrap { max-width:520px; width:100%; }
+.res-label { font-size:11px; letter-spacing:2px; color:var(--muted); text-align:center; text-transform:uppercase; margin-bottom:12px; }
+.res-icon { font-size:72px; text-align:center; margin-bottom:6px; }
+.res-type { font-size:clamp(30px,7vw,52px); font-weight:800; text-align:center; margin-bottom:4px; }
+.res-tagline { font-size:14px; text-align:center; color:var(--muted); margin-bottom:24px; }
+
+/* score bar */
+.score-card {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:16px; padding:18px 22px; margin-bottom:12px;
+}
+.score-title { font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:14px; opacity:.85; }
+.score-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.score-icon { font-size:16px; width:24px; flex-shrink:0; }
+.score-name { font-size:12px; color:var(--muted); width:70px; flex-shrink:0; }
+.score-bar-bg { flex:1; height:5px; background:rgba(255,255,255,.07); border-radius:5px; overflow:hidden; }
+.score-bar-fill { height:100%; border-radius:5px; background:linear-gradient(90deg,#8b6fff,#c4b5fd); transition:width 1s ease; }
+.score-val { font-size:11px; color:var(--muted); width:24px; text-align:right; flex-shrink:0; }
+
+.desc-card {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:16px; padding:20px 22px; margin-bottom:12px;
+}
+.section-label { font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:8px; opacity:.85; }
+.desc-card p { font-size:14px; line-height:1.8; color:rgba(255,255,255,.82); }
+
+.traits-row { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+.trait-chip {
+  background:rgba(139,111,255,.12); border:1px solid rgba(139,111,255,.25);
+  border-radius:8px; padding:4px 11px; font-size:12px; color:rgba(196,181,253,.9);
+}
+
+.jobs-card {
+  background:rgba(139,111,255,.07); border:1px solid rgba(139,111,255,.22);
+  border-radius:16px; padding:18px 22px; margin-bottom:14px;
+}
+.jobs-grid { display:flex; flex-wrap:wrap; gap:7px; }
+.job-tag {
+  background:rgba(139,111,255,.16); border:1px solid rgba(139,111,255,.28);
+  border-radius:8px; padding:5px 12px; font-size:13px; color:rgba(196,181,253,.95);
+}
+
+/* cross-promo */
+.xpromo {
+  background:rgba(99,102,241,.08); border:1px solid rgba(99,102,241,.22);
+  border-radius:16px; padding:18px 22px; margin-bottom:14px;
+  text-decoration:none; color:inherit; display:block; transition:all .2s;
+}
+.xpromo:hover { background:rgba(99,102,241,.14); border-color:rgba(99,102,241,.4); }
+.xpromo-label { font-size:10px; letter-spacing:2px; color:#a5b4fc; text-transform:uppercase; margin-bottom:6px; opacity:.85; }
+.xpromo-title { font-size:16px; font-weight:700; color:#e0e7ff; margin-bottom:3px; }
+.xpromo-sub { font-size:13px; color:rgba(255,255,255,.45); }
+.xpromo-arrow { float:right; font-size:18px; color:rgba(99,102,241,.6); margin-top:-2px; }
+
+.action-btns { display:flex; flex-direction:column; gap:9px; }
+
+.fade-in { animation:fi .4s ease-out; }
+@keyframes fi { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<canvas id="wave-canvas"></canvas>
+<a class="back-link" href="index.html">← 返回</a>
+
+<!-- ════ INTRO ════ -->
+<div id="s-intro" class="screen">
+  <p class="badge">莫子・雙生紫焰 第83集</p>
+  <div class="intro-icon">✦</div>
+  <h1 class="intro-title">你是哪種<br>光之工作者？</h1>
+  <p class="intro-sub">9 個問題，找出你的靈魂使命與天賦<br>以及最適合你的工作方向</p>
+  <div class="types-preview">
+    <span class="type-chip">🌿 治療師</span>
+    <span class="type-chip">⚓ 能量穩定者</span>
+    <span class="type-chip">🔮 靈媒</span>
+    <span class="type-chip">🌙 運夢者</span>
+    <span class="type-chip">🎨 創意大師</span>
+    <span class="type-chip">⚡ 神通使用者</span>
+    <span class="type-chip">🏛 系統創造者</span>
+    <span class="type-chip">🌟 光之引導者</span>
+    <span class="type-chip">📿 神聖導師</span>
+  </div>
+  <button class="btn-primary" onclick="startQuiz()">開始測驗</button>
+  <p style="font-size:12px;color:var(--muted);margin-top:14px;">約需 2 分鐘 · 誠實作答效果最佳</p>
+</div>
+
+<!-- ════ QUIZ ════ -->
+<div id="s-quiz" class="screen hidden">
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span id="q-counter">問題 1 / 9</span>
+      <span id="q-pct">0%</span>
+    </div>
+    <div class="progress-bg"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="q-card fade-in" id="q-card">
+    <div class="q-num" id="q-num">Q 01</div>
+    <div class="q-text" id="q-text"></div>
+  </div>
+  <div class="opts-list" id="opts-list"></div>
+  <div class="next-wrap">
+    <button class="btn-next" id="btn-next" onclick="nextQ()">下一題 →</button>
+  </div>
+</div>
+
+<!-- ════ RESULT ════ -->
+<div id="s-result" class="screen hidden">
+  <div class="res-wrap fade-in">
+    <p class="res-label">你的光之工作者類型</p>
+    <div class="res-icon" id="r-icon">✦</div>
+    <div class="res-type" id="r-type">—</div>
+    <div class="res-tagline" id="r-tagline">—</div>
+
+    <!-- score bars -->
+    <div class="score-card">
+      <div class="score-title">各類型共鳴度</div>
+      <div id="score-bars"></div>
+    </div>
+
+    <!-- traits -->
+    <div class="desc-card">
+      <div class="section-label">你的核心特質</div>
+      <div class="traits-row" id="r-traits"></div>
+      <p id="r-desc"></p>
+    </div>
+
+    <!-- jobs -->
+    <div class="jobs-card">
+      <div class="section-label">✦ 適合你的工作方向</div>
+      <div class="jobs-grid" id="r-jobs"></div>
+    </div>
+
+    <!-- cross promo -->
+    <a class="xpromo" href="quiz.html">
+      <span class="xpromo-arrow">→</span>
+      <div class="xpromo-label">接著探索</div>
+      <div class="xpromo-title">你現在是幾赫茲？</div>
+      <div class="xpromo-sub">測出你此刻的振動頻率，了解當下的意識狀態</div>
+    </a>
+
+    <div class="action-btns">
+      <button class="btn-primary" onclick="restartQuiz()">重新測驗</button>
+      <button class="btn-ghost" onclick="window.open('https://www.youtube.com/watch?v=25I7j5_knIw','_blank')">觀看莫子光之工作者完整影片</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════ 光之工作者資料 ════
+const LW = {
+  '治療師':    { icon:'🌿', color:'#3abf82', tagline:'以愛療癒一切的靈魂', traits:['高度同理心','直覺敏銳','天生傾聽者','能量感應'], desc:'你的存在本身就是一種療癒。你能感受他人難以言說的痛苦，並以溫柔的方式協助轉化。莫子說：治療師要學會設立界限，才不會耗盡自己的光。', jobs:['心理諮商師','身心靈療癒師','護理師 / 醫師','能量療癒師','瑜伽 / 冥想老師','社工師','芳療師'] },
+  '能量穩定者':{ icon:'⚓', color:'#3a9abf', tagline:'在混亂中保持穩定的基石', traits:['天然的定錨','沉穩冷靜','空間能量感知','情緒中性'], desc:'你是集體能量場的穩定器，你的存在讓周圍的人感到安心與踏實。莫子說：能量穩定者常常不自知自己的影響，但在高壓場合，你是最珍貴的人。', jobs:['危機處理師','急救 / 急診工作者','冥想空間創建者','組織協調者','能量場守護者','軍事 / 消防員'] },
+  '靈媒':      { icon:'🔮', color:'#9a5abf', tagline:'連接可見與不可見世界的橋樑', traits:['高度感知力','接收靈性訊息','強烈第六感','敏感的能量雷達'], desc:'你是宇宙信息的接收器，能接收來自更高維度的訊息與指引。莫子說：靈媒型最重要的課題是「清晰」——保持自身頻率純淨，才能傳遞真實的光。', jobs:['靈性顧問','塔羅師 / 占星師','通靈引導師','藝術家（靈感接收者）','夢境分析師','直覺諮詢師'] },
+  '運夢者':    { icon:'🌙', color:'#6060c0', tagline:'在夢境中工作的靈魂旅行者', traits:['預知夢','象徵思維','靈魂旅程','夢境清醒力'], desc:'你在睡眠時進行光之工作，夢境是你與靈性世界溝通的主要頻道。莫子說：運夢者的影響力往往是無形的，但在集體潛意識的層面深遠而真實。', jobs:['夢境解析師','深層心理治療師','催眠引導師','靈魂旅程引導','冥想音樂創作','薩滿工作者'] },
+  '創意大師':  { icon:'🎨', color:'#bf7a30', tagline:'用創意傳遞光頻的宇宙藝術家', traits:['高度創造力','美感天賦','感染性靈感','跨維度表達'], desc:'你透過藝術、音樂、寫作等形式傳遞高頻光，你的作品能改變觀者的意識狀態。莫子說：創意大師創作時，宇宙透過你說話——你不只是在創作，你是在傳遞。', jobs:['藝術家 / 插畫師','音樂人','作家 / 詩人','電影導演','UI/UX 設計師','品牌創意總監','空間設計師'] },
+  '神通使用者':{ icon:'⚡', color:'#c0a020', tagline:'掌握超感知力量的光之探索者', traits:['遠視 / 預知','讀取氣場','遠程感應','超常直覺'], desc:'你擁有或正在發展超感知能力，能感知一般人看不見的層面。莫子說：神通是工具，不是目的。擁有神通的人更需要智慧與愛，否則力量容易失衡。', jobs:['靈視顧問師','能量診療師','阿卡西紀錄讀取師','量子療癒師','直覺教練','靈性偵探'] },
+  '系統創造者':{ icon:'🏛', color:'#30bfaa', tagline:'為新世界設計意識容器的建築師', traits:['整體架構思維','系統設計','戰略眼光','秩序創造'], desc:'你能看到整體架構，並設計新的系統、方法論或社會結構來提升人類意識。莫子說：系統創造者設計的不是房子，而是意識提升的容器——你是光之世界的工程師。', jobs:['靈性教育系統設計者','社會創業家','課程架構師','非營利組織創辦人','生命教練體系建立者','意識進化研究者'] },
+  '光之引導者':{ icon:'🌟', color:'#c0b030', tagline:'用自己的光照亮他人道路的引領者', traits:['天然感染力','激勵他人','指引方向','以身作則'], desc:'你是天生的引領者，能在迷茫中指引方向，用自己的光點燃他人心中的火。莫子說：光之引導者不是告訴別人往哪走，而是用自己的光照亮路，讓人自己看見。', jobs:['生命教練','靈性演講者','社群領袖','YouTuber / Podcaster','人生導師','企業文化顧問','光之社群創辦人'] },
+  '神聖導師':  { icon:'📿', color:'#9a40c0', tagline:'承載古老智慧重新點燃的傳承者', traits:['古老智慧攜帶者','清晰的詮釋力','傳承使命','宇宙法則解讀'], desc:'你承載跨越多個生世的智慧，能以清晰的方式傳授靈性知識。莫子說：神聖導師的使命是讓古老的真理以現代人能理解的方式重新呈現，你是橋接時代的人。', jobs:['靈性導師 / 老師','形而上學作家','冥想 / 靈修指導師','哲學教師','薩滿師傳承者','精神療癒師','意識研究學者'] },
+};
+
+const LW_KEYS = Object.keys(LW);
+
+const QS = [
+  { q:'當你與人互動時，你最自然扮演的角色是？', opts:[
+    { t:'傾聽支持，幫助對方療癒內心的傷口', lw:'治療師' },
+    { t:'帶給現場安定感，讓緊繃氣氛緩和下來', lw:'能量穩定者' },
+    { t:'感受到對方說不出口的情緒和需求', lw:'靈媒' },
+    { t:'分享創意與新觀點，給人嶄新的靈感', lw:'創意大師' },
+    { t:'傳授知識或引導思考，幫助他人成長', lw:'神聖導師' },
+  ]},
+  { q:'關於你的夢境，哪個描述最符合你？', opts:[
+    { t:'夢境清晰、象徵性強，有時像真實的預示', lw:'運夢者' },
+    { t:'夢境中充滿情緒，有時感受到他人的能量', lw:'靈媒' },
+    { t:'常夢見自己在教學或接受教導', lw:'神聖導師' },
+    { t:'充滿色彩、藝術感，像一部電影', lw:'創意大師' },
+    { t:'很少記得夢，入睡快、心態平靜', lw:'能量穩定者' },
+  ]},
+  { q:'在一個混亂、充滿衝突的場合，你最可能做什麼？', opts:[
+    { t:'靜靜地將現場的緊張能量吸收並轉化', lw:'能量穩定者' },
+    { t:'快速感應到誰最需要被關注，去關心他', lw:'治療師' },
+    { t:'開始思考如何重新組織改善這個局面', lw:'系統創造者' },
+    { t:'感知到背後更深的原因或不可見的力量', lw:'靈媒' },
+    { t:'想辦法讓大家看到光明面和希望所在', lw:'光之引導者' },
+  ]},
+  { q:'別人最常說你有什麼特質？', opts:[
+    { t:'「你讓我感覺很安心、被完全接納」', lw:'治療師' },
+    { t:'「你的想法和眼光很不一樣，讓我耳目一新」', lw:'創意大師' },
+    { t:'「你有種說不出的神秘感，看起來很靈」', lw:'神通使用者' },
+    { t:'「你帶給我很大的啟發，讓我看到方向」', lw:'光之引導者' },
+    { t:'「你的智慧讓我受益很多，很信任你的指引」', lw:'神聖導師' },
+  ]},
+  { q:'你最嚮往從事哪類工作？', opts:[
+    { t:'幫助他人身心療癒（諮商、醫療、能量）', lw:'治療師' },
+    { t:'藝術、音樂、設計、寫作等創意型工作', lw:'創意大師' },
+    { t:'教學、演講、寫書、引導他人思考', lw:'神聖導師' },
+    { t:'建立系統、社會創業、設計新組織結構', lw:'系統創造者' },
+    { t:'靈性引導、冥想教學、帶領靈性社群', lw:'光之引導者' },
+  ]},
+  { q:'關於你的靈性天賦，哪個最接近你？', opts:[
+    { t:'我對人的情緒非常敏感，馬上感受到對方狀態', lw:'治療師' },
+    { t:'我的夢境有時清晰得像真實預告', lw:'運夢者' },
+    { t:'我能感受到空間的能量，知道哪裡不對勁', lw:'能量穩定者' },
+    { t:'我有時會有突如其來的強烈直覺或第六感', lw:'神通使用者' },
+    { t:'我能清晰看到整體架構和未來的方向', lw:'系統創造者' },
+  ]},
+  { q:'你內心最深處的渴望是什麼？', opts:[
+    { t:'看到每個人都能從痛苦中解脫、獲得療癒', lw:'治療師' },
+    { t:'透過藝術或創意，讓世界更美好更有意識', lw:'創意大師' },
+    { t:'幫助人們了解靈性真理、喚起覺醒', lw:'神聖導師' },
+    { t:'建立更好的社會系統，創造真正有意義的結構', lw:'系統創造者' },
+    { t:'成為黑暗中的光，引導迷路的靈魂找到方向', lw:'光之引導者' },
+  ]},
+  { q:'在靈性探索上，你最感興趣的領域是？', opts:[
+    { t:'身體療癒、能量醫學、脈輪與氣場', lw:'治療師' },
+    { t:'夢境解析、阿卡西紀錄、靈魂旅程', lw:'運夢者' },
+    { t:'通靈、天使與指導靈的溝通與引導', lw:'靈媒' },
+    { t:'神通修練、遠程感應、預知與超感知', lw:'神通使用者' },
+    { t:'宇宙法則、量子意識、新地球系統', lw:'系統創造者' },
+  ]},
+  { q:'此刻，你感覺自己的天命最像？', opts:[
+    { t:'一個溫柔的治療者，讓人感到被愛與被療癒', lw:'治療師' },
+    { t:'一個穩定的基石，讓周圍的能量保持平衡', lw:'能量穩定者' },
+    { t:'一個橋梁，連接可見與不可見的世界', lw:'靈媒' },
+    { t:'一個創造者，用美與創意改變人的意識', lw:'創意大師' },
+    { t:'一個光的傳遞者，點燃他人內心的火花', lw:'光之引導者' },
+  ]},
+];
+
+// ════ Canvas ════
+const cvs=document.getElementById('wave-canvas'), ctx=cvs.getContext('2d');
+let ph=0;
+function resize(){ cvs.width=window.innerWidth; cvs.height=window.innerHeight; }
+window.addEventListener('resize',resize); resize();
+function draw(){
+  ph+=.012;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  for(let l=0;l<3;l++){
+    const lp=ph+(l*Math.PI*.6), la=55*(1-l*.25), al=.45-l*.1;
+    ctx.beginPath(); ctx.moveTo(0,cvs.height*.5);
+    for(let x=0;x<=cvs.width;x+=4){
+      ctx.lineTo(x, cvs.height*.5+Math.sin(x*.005+lp)*la+Math.sin(x*.009+lp*1.3)*(la*.35));
+    }
+    ctx.strokeStyle=l===0?'#30108a':'#201060'; ctx.lineWidth=2-l*.4; ctx.globalAlpha=al; ctx.stroke();
+  }
+  ctx.globalAlpha=1; requestAnimationFrame(draw);
+}
+draw();
+
+// ════ State ════
+let curQ=0, score={}, selOpt=null;
+function showS(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+
+function startQuiz(){
+  curQ=0; selOpt=null;
+  score={}; LW_KEYS.forEach(k=>score[k]=0);
+  showS('s-quiz'); renderQ();
+}
+
+function renderQ(){
+  const q=QS[curQ], pct=Math.round((curQ/QS.length)*100);
+  document.getElementById('q-counter').textContent=`問題 ${curQ+1} / ${QS.length}`;
+  document.getElementById('q-pct').textContent=`${pct}%`;
+  document.getElementById('prog-fill').style.width=`${pct}%`;
+  document.getElementById('q-num').textContent=`Q ${String(curQ+1).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent=q.q;
+  selOpt=null;
+  const nxt=document.getElementById('btn-next');
+  nxt.classList.remove('visible');
+  const list=document.getElementById('opts-list');
+  list.innerHTML='';
+  q.opts.forEach((op,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    btn.innerHTML=`<span class="opt-dot"></span><span>${op.t}</span>`;
+    btn.addEventListener('click',()=>{ selOpt={idx:i,lw:op.lw}; document.querySelectorAll('.opt').forEach((el,j)=>el.classList.toggle('selected',j===i)); nxt.classList.add('visible'); nxt.textContent=curQ===QS.length-1?'查看結果 ✦':'下一題 →'; });
+    list.appendChild(btn);
+  });
+  const card=document.getElementById('q-card');
+  card.classList.remove('fade-in'); void card.offsetWidth; card.classList.add('fade-in');
+}
+
+function nextQ(){
+  if(!selOpt) return;
+  score[selOpt.lw]++;
+  if(curQ<QS.length-1){ curQ++; renderQ(); } else { showResult(); }
+}
+
+function showResult(){
+  // top type
+  let top='治療師', topV=0;
+  LW_KEYS.forEach(k=>{ if(score[k]>topV){ topV=score[k]; top=k; } });
+  const lw=LW[top];
+
+  document.getElementById('r-icon').textContent=lw.icon;
+  document.getElementById('r-type').textContent=top;
+  document.getElementById('r-type').style.color=lw.color;
+  document.getElementById('r-type').style.filter=`drop-shadow(0 0 20px ${lw.color}88)`;
+  document.getElementById('r-tagline').textContent=lw.tagline;
+
+  // score bars
+  const maxScore=Math.max(...Object.values(score),1);
+  const barsEl=document.getElementById('score-bars');
+  barsEl.innerHTML='';
+  // sort by score desc
+  const sorted=[...LW_KEYS].sort((a,b)=>score[b]-score[a]);
+  sorted.forEach(k=>{
+    const pct=Math.round((score[k]/maxScore)*100);
+    const el=document.createElement('div');
+    el.className='score-row';
+    el.innerHTML=`<span class="score-icon">${LW[k].icon}</span><span class="score-name">${k}</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:0%;background:linear-gradient(90deg,${LW[k].color}88,${LW[k].color})"></div></div><span class="score-val">${score[k]}</span>`;
+    barsEl.appendChild(el);
+    setTimeout(()=>{ el.querySelector('.score-bar-fill').style.width=pct+'%'; },200);
+  });
+
+  // traits + desc
+  const traitsEl=document.getElementById('r-traits');
+  traitsEl.innerHTML='';
+  lw.traits.forEach(t=>{ traitsEl.innerHTML+=`<span class="trait-chip">${t}</span>`; });
+  document.getElementById('r-desc').textContent=lw.desc;
+
+  // jobs
+  const jobsEl=document.getElementById('r-jobs');
+  jobsEl.innerHTML='';
+  lw.jobs.forEach(j=>{ jobsEl.innerHTML+=`<span class="job-tag">${j}</span>`; });
+
+  showS('s-result');
+}
+
+function restartQuiz(){ startQuiz(); }
+</script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>莫子靈性測驗 | 振動頻率 × 光之工作者</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#07070f;
+  color:#e8e8f0;
+  font-family:'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+#wave-canvas {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  z-index:0; pointer-events:none; opacity:.25;
+}
+
+.page {
+  position:relative; z-index:1;
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:40px 20px;
+}
+
+/* ── top ── */
+.top-badge {
+  font-size:11px; letter-spacing:3px;
+  color:rgba(167,139,250,.8);
+  text-transform:uppercase; margin-bottom:20px;
+}
+.main-title {
+  font-size:clamp(28px,6vw,52px);
+  font-weight:800; text-align:center;
+  line-height:1.2; margin-bottom:10px;
+  background:linear-gradient(135deg,#fff 0%,#c4b5fd 50%,#818cf8 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.main-sub {
+  font-size:14px; color:rgba(255,255,255,.42);
+  text-align:center; line-height:1.75;
+  max-width:340px; margin-bottom:52px;
+}
+
+/* ── cards ── */
+.cards {
+  display:flex; flex-direction:column;
+  gap:16px; width:100%; max-width:480px;
+}
+
+.quiz-card {
+  position:relative; overflow:hidden;
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,.1);
+  padding:32px 28px 28px;
+  cursor:pointer;
+  text-decoration:none; color:inherit;
+  display:block;
+  transition:transform .25s, box-shadow .25s, border-color .25s;
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(12px);
+}
+.quiz-card::before {
+  content:'';
+  position:absolute; inset:0;
+  opacity:0; transition:opacity .3s;
+  border-radius:24px;
+}
+.quiz-card:hover { transform:translateY(-3px); }
+.quiz-card:hover::before { opacity:1; }
+
+/* card A — 頻率 */
+.card-freq::before {
+  background:radial-gradient(ellipse at 20% 50%, rgba(99,102,241,.18) 0%, transparent 70%);
+}
+.card-freq:hover {
+  border-color:rgba(99,102,241,.5);
+  box-shadow:0 8px 40px rgba(99,102,241,.2);
+}
+
+/* card B — 光之工作者 */
+.card-lw::before {
+  background:radial-gradient(ellipse at 80% 50%, rgba(167,139,250,.18) 0%, transparent 70%);
+}
+.card-lw:hover {
+  border-color:rgba(167,139,250,.5);
+  box-shadow:0 8px 40px rgba(167,139,250,.2);
+}
+
+.card-header {
+  display:flex; align-items:flex-start;
+  justify-content:space-between; margin-bottom:18px;
+}
+.card-icon {
+  width:52px; height:52px; border-radius:16px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; flex-shrink:0;
+}
+.card-freq .card-icon { background:rgba(99,102,241,.18); }
+.card-lw  .card-icon { background:rgba(167,139,250,.18); }
+
+.card-tag {
+  font-size:11px; letter-spacing:1.5px;
+  text-transform:uppercase; padding:4px 10px;
+  border-radius:6px; font-weight:600;
+}
+.card-freq .card-tag { background:rgba(99,102,241,.15); color:#a5b4fc; }
+.card-lw  .card-tag  { background:rgba(167,139,250,.15); color:#c4b5fd; }
+
+.card-title {
+  font-size:clamp(20px,4vw,26px); font-weight:700;
+  margin-bottom:8px; line-height:1.2;
+}
+.card-freq .card-title { color:#e0e7ff; }
+.card-lw  .card-title  { color:#ede9fe; }
+
+.card-desc {
+  font-size:14px; color:rgba(255,255,255,.5);
+  line-height:1.7; margin-bottom:22px;
+}
+
+.card-meta {
+  display:flex; gap:12px; align-items:center;
+}
+.meta-pill {
+  font-size:12px; color:rgba(255,255,255,.4);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px; padding:5px 11px;
+}
+.card-arrow {
+  margin-left:auto; font-size:20px;
+  color:rgba(255,255,255,.25);
+  transition:transform .25s, color .25s;
+}
+.quiz-card:hover .card-arrow {
+  transform:translateX(4px);
+  color:rgba(255,255,255,.6);
+}
+
+/* ── divider ── */
+.or-divider {
+  display:flex; align-items:center; gap:12px;
+  width:100%; max-width:480px; margin:4px 0;
+  color:rgba(255,255,255,.18); font-size:12px; letter-spacing:2px;
+}
+.or-divider::before, .or-divider::after {
+  content:''; flex:1;
+  height:1px; background:rgba(255,255,255,.08);
+}
+
+/* ── bottom ── */
+.bottom-note {
+  margin-top:40px; text-align:center;
+  font-size:12px; color:rgba(255,255,255,.22);
+  line-height:1.8;
+}
+.bottom-note a {
+  color:rgba(167,139,250,.6); text-decoration:none;
+}
+.bottom-note a:hover { color:rgba(167,139,250,.9); }
+
+/* ── wave hz counter (decorative) ── */
+.hz-deco {
+  position:fixed; bottom:32px; right:28px;
+  font-size:11px; letter-spacing:2px;
+  color:rgba(255,255,255,.12);
+  font-variant-numeric:tabular-nums;
+  pointer-events:none; z-index:0;
+}
+</style>
+</head>
+<body>
+
+<canvas id="wave-canvas"></canvas>
+
+<div class="page">
+
+  <p class="top-badge">莫子 × 雙生紫焰</p>
+
+  <h1 class="main-title">你想探索<br>哪一面的自己？</h1>
+  <p class="main-sub">兩個獨立測驗，從不同維度認識你的靈性本質</p>
+
+  <div class="cards">
+
+    <!-- 頻率測驗 -->
+    <a class="quiz-card card-freq" href="quiz.html">
+      <div class="card-header">
+        <div class="card-icon">〰️</div>
+        <span class="card-tag">振動頻率</span>
+      </div>
+      <div class="card-title">你現在是幾赫茲？</div>
+      <p class="card-desc">
+        基於大衛霍金斯意識能量圖表，測出你此刻的振動頻率——從 20Hz 羞愧恥辱，到 1000Hz 觀察者。反映你<strong style="color:rgba(255,255,255,.7)">當下的意識狀態</strong>。
+      </p>
+      <div class="card-meta">
+        <span class="meta-pill">12 題</span>
+        <span class="meta-pill">約 2 分鐘</span>
+        <span class="meta-pill">17 個頻率層次</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <div class="or-divider">OR</div>
+
+    <!-- 光之工作者 -->
+    <a class="quiz-card card-lw" href="lightworker.html">
+      <div class="card-header">
+        <div class="card-icon">✦</div>
+        <span class="card-tag">光之工作者</span>
+      </div>
+      <div class="card-title">你是哪種光之工作者？</div>
+      <p class="card-desc">
+        莫子在雙生紫焰第 83 集揭示的九種光的屬性——治療師、靈媒、系統創造者…找出你的<strong style="color:rgba(255,255,255,.7)">靈魂使命與天賦</strong>，以及最適合你的工作方向。
+      </p>
+      <div class="card-meta">
+        <span class="meta-pill">9 題</span>
+        <span class="meta-pill">約 2 分鐘</span>
+        <span class="meta-pill">9 種類型</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <p class="bottom-note">
+    內容來自<a href="https://www.youtube.com/watch?v=AqTfbH6y0lE" target="_blank">雙生紫焰第 71 集</a>
+    &nbsp;×&nbsp;
+    <a href="https://www.youtube.com/watch?v=25I7j5_knIw" target="_blank">第 83 集</a>
+    <br>測驗僅供靈性參考，誠實作答效果最佳
+  </p>
+
+</div>
+
+<div class="hz-deco" id="hz-deco">250 Hz</div>
+
+<script>
+// ── Canvas wave ──
+const cvs = document.getElementById('wave-canvas');
+const ctx = cvs.getContext('2d');
+let tgtHz = 250, curHz = 250, ph = 0;
+
+function resize(){ cvs.width=window.innerWidth; cvs.height=window.innerHeight; }
+window.addEventListener('resize', resize); resize();
+
+function lerpC(a,b,t){
+  const ah=parseInt(a.slice(1),16), bh=parseInt(b.slice(1),16);
+  const ar=(ah>>16)&255, ag=(ah>>8)&255, ab=ah&255;
+  const br=(bh>>16)&255, bg=(bh>>8)&255, bb=bh&255;
+  return `rgb(${Math.round(ar+(br-ar)*t)},${Math.round(ag+(bg-ag)*t)},${Math.round(ab+(bb-ab)*t)})`;
+}
+
+function draw(){
+  curHz += (tgtHz - curHz) * .015;
+  const t = Math.max(0, Math.min(1, (curHz-20)/980));
+  const spd=.3+t*2.5, amp=40+t*60, frq=.003+t*.009;
+  ph += spd * .012;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  const c1=lerpC('#1a0050','#3a10a0',t), c2=lerpC('#001040','#103080',t);
+  for(let l=0;l<3;l++){
+    const lp=ph+(l*Math.PI*.6), la=amp*(1-l*.25), al=.55-l*.13;
+    ctx.beginPath(); ctx.moveTo(0, cvs.height*.5);
+    for(let x=0;x<=cvs.width;x+=4){
+      const y=cvs.height*.5 + Math.sin(x*frq+lp)*la + Math.sin(x*frq*1.8+lp*1.3)*(la*.3);
+      ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle=l===0?c1:c2; ctx.lineWidth=2-l*.4; ctx.globalAlpha=al; ctx.stroke();
+  }
+  ctx.globalAlpha=1; requestAnimationFrame(draw);
+}
+draw();
+
+// ── Slow hz drift ──
+const hzSeq=[20,50,100,175,200,250,310,350,400,500,550,600,700];
+let hzI=0;
+const decoEl=document.getElementById('hz-deco');
+setInterval(()=>{
+  hzI=(hzI+1)%hzSeq.length;
+  tgtHz=hzSeq[hzI];
+  decoEl.textContent=(tgtHz===700?'700+':tgtHz)+' Hz';
+}, 1800);
+</script>
+</body>
+</html>

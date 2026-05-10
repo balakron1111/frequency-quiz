@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>你現在是幾赫茲？｜振動頻率測驗</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg:#07070f; --border:rgba(255,255,255,.11);
+  --muted:rgba(255,255,255,.42); --accent:#6366f1;
+}
+body {
+  background:var(--bg); color:#e8e8f0;
+  font-family:'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif;
+  min-height:100vh; overflow-x:hidden;
+}
+#wave-canvas {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  z-index:0; pointer-events:none; opacity:.28;
+}
+.screen {
+  position:relative; z-index:1; min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:28px 16px;
+}
+.screen.hidden { display:none; }
+
+/* ── Intro ── */
+.back-link {
+  position:fixed; top:20px; left:20px; z-index:10;
+  font-size:13px; color:var(--muted); text-decoration:none;
+  display:flex; align-items:center; gap:6px;
+  transition:color .2s;
+}
+.back-link:hover { color:#e8e8f0; }
+
+.badge { font-size:11px; letter-spacing:2.5px; color:var(--accent); text-transform:uppercase; margin-bottom:16px; opacity:.85; }
+.intro-hz {
+  font-size:clamp(72px,14vw,120px); font-weight:800;
+  letter-spacing:-3px; line-height:1; margin-bottom:4px;
+  background:linear-gradient(135deg,#fff 0%,#a5b4fc 50%,#818cf8 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  filter:drop-shadow(0 0 30px rgba(99,102,241,.5));
+}
+.hz-unit { font-size:13px; letter-spacing:3px; color:var(--muted); margin-bottom:28px; }
+.intro-title {
+  font-size:clamp(24px,5vw,44px); font-weight:700;
+  text-align:center; line-height:1.25; margin-bottom:10px;
+  background:linear-gradient(135deg,#fff 0%,#a5b4fc 60%,#818cf8 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.intro-sub { font-size:14px; color:var(--muted); text-align:center; line-height:1.75; max-width:340px; margin-bottom:36px; }
+.btn-primary {
+  background:linear-gradient(135deg,#6366f1,#4f46e5);
+  color:#fff; border:none; border-radius:14px;
+  padding:16px 48px; font-size:17px; font-weight:600;
+  cursor:pointer; transition:all .25s;
+  box-shadow:0 4px 24px rgba(99,102,241,.4);
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(99,102,241,.55); }
+.btn-ghost {
+  background:transparent; color:var(--muted); border:1px solid var(--border);
+  border-radius:12px; padding:12px 32px; font-size:14px;
+  cursor:pointer; transition:all .2s; margin-top:10px;
+  text-decoration:none; display:inline-block; text-align:center;
+}
+.btn-ghost:hover { border-color:rgba(255,255,255,.3); color:#e8e8f0; }
+
+/* ── Quiz ── */
+.progress-wrap { width:100%; max-width:560px; margin-bottom:22px; }
+.progress-meta { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:7px; }
+.progress-bg { height:4px; background:rgba(255,255,255,.07); border-radius:4px; overflow:hidden; }
+.progress-fill {
+  height:100%; border-radius:4px;
+  background:linear-gradient(90deg,#6366f1,#818cf8);
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+.q-card {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:20px; padding:26px 24px;
+  max-width:560px; width:100%; margin-bottom:14px;
+}
+.q-num { font-size:11px; letter-spacing:2px; color:var(--accent); margin-bottom:9px; }
+.q-text { font-size:clamp(15px,2.8vw,19px); font-weight:600; line-height:1.5; color:#fff; }
+.opts-list { display:flex; flex-direction:column; gap:9px; max-width:560px; width:100%; }
+.opt {
+  background:rgba(255,255,255,.04); border:1.5px solid var(--border);
+  border-radius:14px; padding:14px 18px; cursor:pointer;
+  transition:all .2s; font-size:14.5px; line-height:1.5;
+  color:#e8e8f0; text-align:left;
+  display:flex; align-items:flex-start; gap:11px;
+}
+.opt:hover { background:rgba(99,102,241,.12); border-color:rgba(99,102,241,.5); color:#fff; }
+.opt.selected { background:rgba(99,102,241,.2); border-color:#6366f1; color:#fff; }
+.opt-dot {
+  width:18px; height:18px; border-radius:50%; border:2px solid var(--border);
+  flex-shrink:0; margin-top:2px; transition:all .2s;
+  display:flex; align-items:center; justify-content:center;
+}
+.opt.selected .opt-dot { border-color:#6366f1; background:#6366f1; }
+.opt.selected .opt-dot::after { content:''; width:7px; height:7px; border-radius:50%; background:#fff; }
+.next-wrap { max-width:560px; width:100%; margin-top:6px; }
+.btn-next {
+  width:100%; background:linear-gradient(135deg,#6366f1,#4f46e5);
+  color:#fff; border:none; border-radius:14px;
+  padding:15px; font-size:16px; font-weight:600; cursor:pointer;
+  transition:all .25s; opacity:0; pointer-events:none;
+  box-shadow:0 4px 20px rgba(99,102,241,.3);
+}
+.btn-next.visible { opacity:1; pointer-events:all; }
+.btn-next:hover { transform:translateY(-1px); }
+
+/* ── Result ── */
+.res-wrap { max-width:520px; width:100%; }
+.res-label { font-size:11px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:6px; text-align:center; }
+.res-hz {
+  font-size:clamp(80px,18vw,140px); font-weight:800;
+  letter-spacing:-4px; line-height:1; text-align:center;
+}
+.res-hz-unit { font-size:14px; letter-spacing:3px; color:var(--muted); text-align:center; margin-bottom:6px; }
+.res-name { font-size:clamp(22px,5vw,34px); font-weight:700; text-align:center; margin-bottom:22px; }
+
+.gauge-card {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:16px; padding:18px 22px; margin-bottom:12px;
+}
+.gauge-track { height:7px; background:rgba(255,255,255,.07); border-radius:7px; overflow:hidden; margin-bottom:7px; }
+.gauge-bar { height:100%; border-radius:7px; transition:width 1.5s cubic-bezier(.4,0,.2,1); }
+.gauge-labels { display:flex; justify-content:space-between; font-size:10px; color:var(--muted); }
+
+.desc-card {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:16px; padding:20px 22px; margin-bottom:12px;
+}
+.section-label { font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:8px; opacity:.85; }
+.desc-card p { font-size:14px; line-height:1.8; color:rgba(255,255,255,.82); }
+
+.nbr-row { display:flex; gap:10px; margin-bottom:16px; }
+.nbr-card {
+  flex:1; background:rgba(255,255,255,.03); border:1px solid var(--border);
+  border-radius:12px; padding:13px 10px; text-align:center;
+}
+.nbr-label { font-size:10px; color:var(--muted); letter-spacing:1px; margin-bottom:4px; }
+.nbr-hz { font-size:22px; font-weight:700; margin-bottom:2px; }
+.nbr-name { font-size:11px; color:var(--muted); }
+
+/* cross-promo */
+.xpromo {
+  background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.2);
+  border-radius:16px; padding:18px 22px; margin-bottom:14px;
+  text-decoration:none; color:inherit; display:block; transition:all .2s;
+}
+.xpromo:hover { background:rgba(167,139,250,.14); border-color:rgba(167,139,250,.4); }
+.xpromo-label { font-size:10px; letter-spacing:2px; color:#c4b5fd; text-transform:uppercase; margin-bottom:6px; opacity:.85; }
+.xpromo-title { font-size:16px; font-weight:700; color:#ede9fe; margin-bottom:3px; }
+.xpromo-sub { font-size:13px; color:rgba(255,255,255,.45); }
+.xpromo-arrow { float:right; font-size:18px; color:rgba(167,139,250,.6); margin-top:-2px; }
+
+.action-btns { display:flex; flex-direction:column; gap:9px; }
+
+.fade-in { animation:fi .4s ease-out; }
+@keyframes fi { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<canvas id="wave-canvas"></canvas>
+<a class="back-link" href="index.html">← 返回</a>
+
+<!-- ════ INTRO ════ -->
+<div id="s-intro" class="screen">
+  <p class="badge">大衛霍金斯意識能量圖表</p>
+  <div class="intro-hz" id="intro-hz">250</div>
+  <div class="hz-unit">Hz</div>
+  <h1 class="intro-title">你現在是<br>幾赫茲？</h1>
+  <p class="intro-sub">12 個問題，測出你此刻在意識圖表上的位置<br>從羞愧 20Hz 到觀察者 1000Hz</p>
+  <button class="btn-primary" onclick="startQuiz()">開始測驗</button>
+  <p style="font-size:12px;color:var(--muted);margin-top:14px;">約需 2 分鐘 · 誠實作答效果最佳</p>
+</div>
+
+<!-- ════ QUIZ ════ -->
+<div id="s-quiz" class="screen hidden">
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span id="q-counter">問題 1 / 12</span>
+      <span id="q-pct">0%</span>
+    </div>
+    <div class="progress-bg"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="q-card fade-in" id="q-card">
+    <div class="q-num" id="q-num">Q 01</div>
+    <div class="q-text" id="q-text"></div>
+  </div>
+  <div class="opts-list" id="opts-list"></div>
+  <div class="next-wrap">
+    <button class="btn-next" id="btn-next" onclick="nextQ()">下一題 →</button>
+  </div>
+</div>
+
+<!-- ════ RESULT ════ -->
+<div id="s-result" class="screen hidden">
+  <div class="res-wrap fade-in">
+    <p class="res-label">你目前的振動頻率</p>
+    <div class="res-hz" id="r-hz">—</div>
+    <div class="res-hz-unit">Hz</div>
+    <div class="res-name" id="r-name">—</div>
+
+    <div class="gauge-card">
+      <div class="gauge-track"><div class="gauge-bar" id="r-gauge"></div></div>
+      <div class="gauge-labels">
+        <span>20 羞愧恥辱</span><span>200 勇氣肯定</span><span>1000 觀察者</span>
+      </div>
+    </div>
+
+    <div class="desc-card">
+      <div class="section-label">莫子說</div>
+      <p id="r-desc"></p>
+    </div>
+
+    <div class="nbr-row" id="r-nbr"></div>
+
+    <!-- cross promo -->
+    <a class="xpromo" href="lightworker.html">
+      <span class="xpromo-arrow">→</span>
+      <div class="xpromo-label">接著探索</div>
+      <div class="xpromo-title">你是哪種光之工作者？</div>
+      <div class="xpromo-sub">找出你的靈魂使命與最適合的工作方向</div>
+    </a>
+
+    <div class="action-btns">
+      <button class="btn-primary" onclick="restartQuiz()">重新測驗</button>
+      <button class="btn-ghost" onclick="window.open('https://www.youtube.com/watch?v=AqTfbH6y0lE','_blank')">觀看莫子完整解析影片</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════ 頻率資料 ════
+const FREQ = [
+  { hz:20,  name:'羞愧恥辱', color:'#e05050', g:['#3d0000','#7a1a1a'], desc:'你目前處於意識圖表最底層。這個狀態帶來極度的自我否定，時常覺得自己「不配」存在。覺察本身就是改變的開始——你能意識到這裡，已是勇氣的展現。' },
+  { hz:30,  name:'罪惡譴責', color:'#d06040', g:['#4a1a00','#7a2d00'], desc:'你正背負著深重的罪惡感與自責，對過去的行為難以原諒。真正的寬恕從自己開始。結束自我懲罰的循環，才能真正向前走。' },
+  { hz:50,  name:'冷漠絕望', color:'#8080a0', g:['#1a1a2e','#4a4a5a'], desc:'你對生命感到麻木，彷彿失去感受一切的能力，覺得什麼都無所謂。麻木是一種自我保護——當你準備好時，感受力自然回來。' },
+  { hz:75,  name:'憂傷懊悔', color:'#7070c0', g:['#1a1040','#3a3060'], desc:'你沉浸在深深的憂傷中，對失去的人事物懷有遺憾。悲傷是愛的另一種形式——讓自己充分感受，才能真正走過它，而不是繞開它。' },
+  { hz:100, name:'焦慮恐懼', color:'#6060d0', g:['#100a40','#2a2060'], desc:'你的主要狀態是焦慮與恐懼，總在擔憂「如果…怎麼辦」。恐懼的反面不是勇氣，而是「信任」——信任宇宙自有安排，練習活在當下。' },
+  { hz:125, name:'渴愛慾望', color:'#a060c0', g:['#330040','#5a1a60'], desc:'你處於強烈渴望與執念的狀態，相信「得到那個就會快樂」。真正的滿足來自內在，而非外在——你把快樂的鑰匙交給了外面的事物。' },
+  { hz:150, name:'憤怒仇恨', color:'#e04040', g:['#4a0800','#7a1500'], desc:'你充滿憤怒的能量。憤怒比恐懼頻率更高，代表你開始有力量。把憤怒轉化為行動的燃料，而不是讓它成為你的主人。' },
+  { hz:175, name:'驕傲輕蔑', color:'#c0a000', g:['#4a2c00','#7a5500'], desc:'你透過覺得自己比他人優越來建立自我感。這種自我感是脆弱的，因為它依賴比較才能存在。真正的自信，不需要任何人更差才能成立。' },
+  { hz:200, name:'勇氣肯定', color:'#40c040', g:['#0d3300','#2a6600'], desc:'恭喜！你已跨越能量圖表最重要的門檻。200 是第一個正能量頻率，代表你有勇氣面對真實、承擔責任。莫子說：「越過 200，才真正開始向上走。」' },
+  { hz:250, name:'中性信賴', color:'#00c0a0', g:['#004030','#008060'], desc:'你已進入中性信賴的狀態，不再被情緒操控，能靈活應對各種情況。中性不是冷漠，而是高度的靈活與平衡——你不再需要掌控一切。' },
+  { hz:310, name:'希望樂觀', color:'#00b060', g:['#003020','#006b4a'], desc:'你能看到可能性，相信未來會更好。莫子說：這個頻率是「轉折點」，生命開始出現更多美好的機遇。繼續保持這份光！' },
+  { hz:350, name:'寬容原諒', color:'#0090d0', g:['#002040','#005b8a'], desc:'你能接受生命的多元面貌，不再輕易評判。原諒不是為了對方，而是釋放自己——你選擇了自由，而非繼續被傷痛束縛。' },
+  { hz:400, name:'理性諒解', color:'#2070e0', g:['#001540','#004a8a'], desc:'你正在理性的高頻層次，能用智慧看透事物本質。莫子提醒：理性是寶貴工具，但不是終點——心的智慧才是下一步。' },
+  { hz:500, name:'愛與崇敬', color:'#6050e0', g:['#07034a','#1a0a80'], desc:'你已進入高振動的「愛」的頻率，對生命充滿崇敬，能看見萬物的神聖。莫子說：「500 以上，才開始觸碰靈性的真實。」' },
+  { hz:550, name:'幽默自在', color:'#8040e0', g:['#15004a','#3a0a80'], desc:'你在任何情況下都能輕鬆自在，看到生命的趣味與美好。莫子說：幽默是一種高度的靈性智慧，能讓沉重的事情變得輕盈。' },
+  { hz:600, name:'安詳極樂', color:'#a030d0', g:['#250050','#5a0a8a'], desc:'你的振動已達到安詳極樂的境界——極深的平靜與喜悅，超越語言所能描述。莫子說：這個層次很少人能長時間維持，你非常珍貴。' },
+  { hz:700, name:'觀察者',   color:'#c060ff', g:['#2a0070','#6a30c0'], desc:'你已達到開悟者的意識層次（700–1000）。超越二元對立，純粹的覺知與觀察。莫子說：這是人類意識的巔峰，是與宇宙合一的狀態。' },
+];
+
+const QS = [
+  { q:'早晨醒來，你腦海中第一個念頭通常是什麼？', opts:[
+    { t:'「又是新的一天…感覺很沉重，提不起勁」', hz:50 },
+    { t:'「希望今天不要有什麼壞事發生…」', hz:100 },
+    { t:'「今天我要達成某個目標、得到某樣東西」', hz:125 },
+    { t:'「繼續做好該做的事，雖然不確定結果」', hz:200 },
+    { t:'「感謝這個早晨，充滿愛與期待」', hz:500 },
+  ]},
+  { q:'有人在眾人面前批評你，你的第一反應是？', opts:[
+    { t:'極度羞愧，想消失，覺得自己很糟糕', hz:20 },
+    { t:'感到憤怒，心裡想著怎麼反擊', hz:150 },
+    { t:'有些不舒服，但願意思考是否有道理', hz:200 },
+    { t:'平靜地評估，感謝對方指出盲點', hz:350 },
+    { t:'輕鬆接受，知道評判只是對方的投射', hz:550 },
+  ]},
+  { q:'看到某人比你更成功，你心裡通常是？', opts:[
+    { t:'強烈嫉妒，甚至有點憤怒——為什麼不是我', hz:150 },
+    { t:'渴望擁有同樣的成就，很想趕上', hz:125 },
+    { t:'有點驕傲地抵抗：「我也不差」', hz:175 },
+    { t:'替他們感到高興，並想從他們身上學習', hz:350 },
+    { t:'由衷欣賞，覺得這個世界真美好', hz:500 },
+  ]},
+  { q:'回想過去犯下的錯誤，你現在的感受是？', opts:[
+    { t:'不斷責怪自己，覺得不可原諒', hz:30 },
+    { t:'感到深深的遺憾，時常懊悔', hz:75 },
+    { t:'偶爾還是會想起，但大致能接受了', hz:310 },
+    { t:'完全原諒自己，感謝那些錯誤讓自己成長', hz:500 },
+    { t:'只是曾經發生的事，不帶任何情緒', hz:700 },
+  ]},
+  { q:'面對生命中無可避免的苦難，你如何看待？', opts:[
+    { t:'這是我的報應，我活該受苦', hz:30 },
+    { t:'生命沒有意義，苦難就是苦難', hz:50 },
+    { t:'苦難讓我成長，雖不舒服但願意面對', hz:200 },
+    { t:'苦難是生命不可分割的一部分，我接受', hz:350 },
+    { t:'苦難與喜悅都是生命完整的展開', hz:600 },
+  ]},
+  { q:'當你一個人獨處時，你的內心狀態通常是？', opts:[
+    { t:'空洞、麻木，感受不到什麼', hz:50 },
+    { t:'各種擔憂不斷湧現，難以平靜', hz:100 },
+    { t:'清明自在，享受這段獨處時光', hz:550 },
+    { t:'深沉的寧靜感，感受到一種完整', hz:600 },
+    { t:'幾乎沒有「我」，只有純粹的覺知', hz:700 },
+  ]},
+  { q:'在人際關係中，你最常有的感受是？', opts:[
+    { t:'害怕被拋棄，因此不斷討好他人', hz:100 },
+    { t:'渴望更多愛與認可，但總感到不滿足', hz:125 },
+    { t:'偶爾覺得付出太多、不被珍惜，有些怨氣', hz:150 },
+    { t:'平靜相處，不過度依賴，也不刻意排斥', hz:250 },
+    { t:'真心地愛護周圍的人，不求任何回報', hz:500 },
+  ]},
+  { q:'當你的計劃突然出了狀況，你的反應通常是？', opts:[
+    { t:'感到無力又絕望，覺得自己果然不行', hz:50 },
+    { t:'非常焦慮甚至恐慌，想最壞的結果', hz:100 },
+    { t:'感到憤怒，想找個人或事來責怪', hz:150 },
+    { t:'沮喪一陣後，重新調整計劃繼續前進', hz:200 },
+    { t:'輕鬆接受，相信轉彎後有更好的安排', hz:310 },
+  ]},
+  { q:'你對「未來」通常持什麼態度？', opts:[
+    { t:'看不到希望，覺得未來只會更糟', hz:50 },
+    { t:'充滿擔憂，腦海不斷出現各種壞事', hz:100 },
+    { t:'相信只要努力，就能創造更好的未來', hz:200 },
+    { t:'保持樂觀期待，相信一切都有最好安排', hz:310 },
+    { t:'未來與現在都是完美的展開', hz:600 },
+  ]},
+  { q:'你最常有的身體感受是？', opts:[
+    { t:'沉重、疲倦、虛弱，提不起任何勁', hz:50 },
+    { t:'緊繃、焦慮、心跳偶爾加速', hz:100 },
+    { t:'有力量感與行動力，準備迎接挑戰', hz:200 },
+    { t:'輕盈、流動感，身體自在有活力', hz:550 },
+    { t:'深沉的靜定感，如平靜無波的湖面', hz:600 },
+  ]},
+  { q:'你如何定義「愛」？', opts:[
+    { t:'愛帶來痛苦與失去，我害怕去愛', hz:100 },
+    { t:'愛是交換，對方對我好我才對他好', hz:125 },
+    { t:'愛是接受與原諒，包含對方的不完美', hz:350 },
+    { t:'愛是無條件的，不需要任何理由', hz:500 },
+    { t:'愛就是一切萬有的本質', hz:700 },
+  ]},
+  { q:'此刻，你對「現在的自己」最誠實的感受是？', opts:[
+    { t:'我不夠好，不配擁有美好的事物', hz:20 },
+    { t:'我有很多遺憾，覺得本來可以更好', hz:75 },
+    { t:'我還在成長的路上，這樣就夠了', hz:200 },
+    { t:'我完全接受自己現在的樣子', hz:350 },
+    { t:'我是完整的、完美的，與宇宙萬有相連', hz:700 },
+  ]},
+];
+
+// ════ Canvas ════
+const cvs=document.getElementById('wave-canvas'), ctx=cvs.getContext('2d');
+let tHz=250, cHz=250, ph=0;
+function resize(){ cvs.width=window.innerWidth; cvs.height=window.innerHeight; }
+window.addEventListener('resize',resize); resize();
+function lerpC(a,b,t){ const ah=parseInt(a.slice(1),16),bh=parseInt(b.slice(1),16),ar=(ah>>16)&255,ag=(ah>>8)&255,ab=ah&255,br=(bh>>16)&255,bg=(bh>>8)&255,bb=bh&255; return `rgb(${Math.round(ar+(br-ar)*t)},${Math.round(ag+(bg-ag)*t)},${Math.round(ab+(bb-ab)*t)})`; }
+function draw(){
+  cHz+=(tHz-cHz)*.018; const t=Math.max(0,Math.min(1,(cHz-20)/980));
+  const spd=.3+t*2.5,amp=38+t*58,frq=.003+t*.009; ph+=spd*.015;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  const c1=lerpC('#100040','#3010a0',t),c2=lerpC('#001040','#102070',t);
+  for(let l=0;l<3;l++){
+    const lp=ph+(l*Math.PI*.6),la=amp*(1-l*.25),al=.55-l*.13;
+    ctx.beginPath(); ctx.moveTo(0,cvs.height*.5);
+    for(let x=0;x<=cvs.width;x+=4){
+      ctx.lineTo(x, cvs.height*.5+Math.sin(x*frq+lp)*la+Math.sin(x*frq*1.7+lp*1.3)*(la*.35));
+    }
+    ctx.strokeStyle=l===0?c1:c2; ctx.lineWidth=2-l*.4; ctx.globalAlpha=al; ctx.stroke();
+  }
+  ctx.globalAlpha=1; requestAnimationFrame(draw);
+}
+draw();
+
+// intro anim
+const hzSeq=[20,50,100,150,200,250,310,350,400,500,550,600,700];
+let hzI=0, introEl=document.getElementById('intro-hz');
+setInterval(()=>{ hzI=(hzI+1)%hzSeq.length; introEl.textContent=hzSeq[hzI]; tHz=hzSeq[hzI]; },1100);
+
+// ════ State ════
+let curQ=0, answers=[], selOpt=null;
+function showS(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+
+function startQuiz(){ curQ=0; answers=[]; selOpt=null; showS('s-quiz'); renderQ(); }
+
+function renderQ(){
+  const q=QS[curQ], pct=Math.round((curQ/QS.length)*100);
+  document.getElementById('q-counter').textContent=`問題 ${curQ+1} / ${QS.length}`;
+  document.getElementById('q-pct').textContent=`${pct}%`;
+  document.getElementById('prog-fill').style.width=`${pct}%`;
+  document.getElementById('q-num').textContent=`Q ${String(curQ+1).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent=q.q;
+  selOpt=null;
+  const nxt=document.getElementById('btn-next');
+  nxt.classList.remove('visible');
+  const list=document.getElementById('opts-list');
+  list.innerHTML='';
+  q.opts.forEach((op,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    btn.innerHTML=`<span class="opt-dot"></span><span>${op.t}</span>`;
+    btn.addEventListener('click',()=>{ selOpt={idx:i,hz:op.hz}; document.querySelectorAll('.opt').forEach((el,j)=>el.classList.toggle('selected',j===i)); nxt.classList.add('visible'); nxt.textContent=curQ===QS.length-1?'查看結果 ✦':'下一題 →'; tHz=op.hz; });
+    list.appendChild(btn);
+  });
+  const card=document.getElementById('q-card');
+  card.classList.remove('fade-in'); void card.offsetWidth; card.classList.add('fade-in');
+  tHz=100+curQ*30;
+}
+
+function nextQ(){
+  if(!selOpt) return;
+  answers.push(selOpt.hz);
+  if(curQ<QS.length-1){ curQ++; renderQ(); } else { showResult(); }
+}
+
+function showResult(){
+  const avg=answers.reduce((a,b)=>a+b,0)/answers.length;
+  let best=FREQ[0],bd=Infinity;
+  FREQ.forEach(f=>{ const d=Math.abs(f.hz-avg); if(d<bd){ bd=d; best=f; } });
+  tHz=best.hz;
+
+  const hEl=document.getElementById('r-hz');
+  hEl.style.color=best.color;
+  hEl.style.filter=`drop-shadow(0 0 24px ${best.color}88)`;
+  animCount(hEl,20,best.hz===700?700:best.hz,1200,best.hz===700?'+':'');
+  document.getElementById('r-name').textContent=best.name;
+  document.getElementById('r-name').style.color=best.color;
+  document.getElementById('r-desc').textContent=best.desc;
+
+  const pct=Math.min(100,Math.max(2,((best.hz-20)/980)*100));
+  const gEl=document.getElementById('r-gauge');
+  gEl.style.background=`linear-gradient(90deg,${best.g[0]},${best.g[1]})`;
+  setTimeout(()=>{ gEl.style.width=pct+'%'; },350);
+
+  const idx=FREQ.findIndex(f=>f.hz===best.hz);
+  const prev=FREQ[idx-1], next=FREQ[idx+1];
+  const nbrEl=document.getElementById('r-nbr');
+  nbrEl.innerHTML='';
+  if(prev) nbrEl.innerHTML+=`<div class="nbr-card"><div class="nbr-label">比你低一層</div><div class="nbr-hz" style="color:${prev.color}">${prev.hz}</div><div class="nbr-name">${prev.name}</div></div>`;
+  if(next) nbrEl.innerHTML+=`<div class="nbr-card"><div class="nbr-label">下一個目標</div><div class="nbr-hz" style="color:${next.color}">${next.hz===700?'700+':next.hz}</div><div class="nbr-name">${next.name}</div></div>`;
+
+  showS('s-result');
+}
+
+function animCount(el,from,to,dur,suffix=''){
+  const s=performance.now();
+  (function tick(now){ const p=Math.min(1,(now-s)/dur),e=1-Math.pow(1-p,3); el.textContent=Math.round(from+(to-from)*e)+(p>=1?suffix:''); if(p<1) requestAnimationFrame(tick); })(s);
+}
+
+function restartQuiz(){ startQuiz(); }
+</script>
+</body>
+</html>
