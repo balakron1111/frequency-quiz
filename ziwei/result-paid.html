@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>完整命盤｜紫微斗數</title>
+<title>完整命盤｜紫微斗數 × 莫子觀點</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
@@ -12,24 +12,21 @@ body {
   font-family:'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif;
   min-height:100vh;
   overflow-x:hidden;
-  padding-bottom:160px;
+  padding-bottom:180px;
 }
-
 #wave-canvas {
   position:fixed; top:0; left:0;
   width:100%; height:100%;
-  z-index:0; pointer-events:none; opacity:.18;
+  z-index:0; pointer-events:none; opacity:.15;
 }
-
 .page {
   position:relative; z-index:1;
   display:flex; flex-direction:column;
   align-items:center;
   padding:48px 20px 40px;
 }
-
 .back-link {
-  align-self:flex-start; max-width:480px; width:100%;
+  align-self:flex-start; max-width:520px; width:100%;
   margin-bottom:24px;
 }
 .back-link a {
@@ -41,7 +38,7 @@ body {
 /* ── paid badge ── */
 .paid-badge-row {
   display:flex; align-items:center; gap:10px;
-  width:100%; max-width:480px; margin-bottom:20px;
+  width:100%; max-width:520px; margin-bottom:20px;
   justify-content:center;
 }
 .paid-badge {
@@ -55,7 +52,7 @@ body {
 
 /* ── star hero ── */
 .star-hero {
-  width:100%; max-width:480px;
+  width:100%; max-width:520px;
   background:rgba(124,58,237,.12);
   border:1px solid rgba(124,58,237,.4);
   border-radius:24px;
@@ -70,7 +67,6 @@ body {
   background:radial-gradient(ellipse at 50% 0%, rgba(124,58,237,.3) 0%, transparent 70%);
   pointer-events:none;
 }
-
 .star-emoji { font-size:56px; margin-bottom:14px; display:block; line-height:1; }
 .star-name {
   font-size:clamp(28px,7vw,46px); font-weight:800;
@@ -82,7 +78,7 @@ body {
 
 /* ── section card ── */
 .section-card {
-  width:100%; max-width:480px;
+  width:100%; max-width:520px;
   background:rgba(255,255,255,.04);
   backdrop-filter:blur(12px);
   border:1px solid rgba(255,255,255,.08);
@@ -94,60 +90,32 @@ body {
   border-color:rgba(124,58,237,.25);
   background:rgba(124,58,237,.06);
 }
-
 .section-label {
   font-size:11px; letter-spacing:2.5px;
   color:rgba(167,139,250,.6);
   text-transform:uppercase; margin-bottom:12px;
 }
-.section-title {
-  font-size:17px; font-weight:700;
-  color:rgba(255,255,255,.85); margin-bottom:10px;
-}
 .section-body {
-  font-size:14px; color:rgba(255,255,255,.5);
-  line-height:1.85;
+  font-size:14px; color:rgba(255,255,255,.58);
+  line-height:1.9; white-space:pre-line;
 }
-.section-body strong { color:rgba(196,181,253,.8); font-weight:600; }
+.section-body strong { color:rgba(196,181,253,.85); font-weight:600; }
 
-/* ── 12 宮 grid ── */
-.palace-grid {
-  display:flex; flex-direction:column; gap:12px;
-  width:100%; max-width:480px; margin-bottom:14px;
-}
-
-.palace-card {
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:16px;
-  padding:20px 20px 18px;
-  transition:border-color .2s;
-}
-.palace-card:hover { border-color:rgba(124,58,237,.3); }
-
-.palace-header {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:12px;
-}
-.palace-name {
-  font-size:15px; font-weight:700;
-  color:rgba(196,181,253,.9);
-}
-.palace-stars {
-  font-size:12px; color:rgba(124,58,237,.8);
-  background:rgba(124,58,237,.1);
-  border:1px solid rgba(124,58,237,.2);
-  border-radius:6px; padding:3px 10px;
-}
-.palace-body {
-  font-size:13px; color:rgba(255,255,255,.45);
-  line-height:1.8;
+/* layer2 style */
+.layer2-block {
+  margin-top:20px;
+  border-left:3px solid rgba(124,58,237,.5);
+  padding:16px 18px;
+  background:rgba(124,58,237,.07);
+  border-radius:0 12px 12px 0;
+  font-size:14px; color:rgba(196,181,253,.7);
+  line-height:1.9; white-space:pre-line;
 }
 
 /* traits */
 .traits-grid {
   display:grid; grid-template-columns:1fr 1fr;
-  gap:10px; margin-top:14px;
+  gap:10px; margin-top:18px;
 }
 .trait-pill {
   background:rgba(124,58,237,.1);
@@ -158,18 +126,79 @@ body {
   text-align:center;
 }
 
+/* palace hint */
+.palace-hint-block {
+  margin-top:16px;
+  font-size:13px; color:rgba(255,255,255,.3);
+  line-height:1.75; text-align:center;
+  font-style:italic;
+}
+
 /* section divider */
 .section-divider {
-  width:100%; max-width:480px;
-  height:1px; background:rgba(255,255,255,.05);
+  width:100%; max-width:520px;
   margin:8px 0 20px;
   display:flex; align-items:center; justify-content:center;
+  gap:12px;
+}
+.section-divider::before, .section-divider::after {
+  content:''; flex:1;
+  height:1px; background:rgba(255,255,255,.06);
 }
 .divider-label {
   font-size:11px; letter-spacing:2px;
-  color:rgba(255,255,255,.15); padding:0 16px;
-  background:#07070f; text-transform:uppercase;
+  color:rgba(255,255,255,.2);
+  text-transform:uppercase;
   white-space:nowrap;
+}
+
+/* ── 12 宮 grid ── */
+.palace-grid {
+  display:flex; flex-direction:column; gap:12px;
+  width:100%; max-width:520px; margin-bottom:14px;
+}
+.palace-card {
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;
+  padding:20px 20px 18px;
+  transition:border-color .2s;
+}
+.palace-card:hover { border-color:rgba(124,58,237,.3); }
+.palace-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px;
+}
+.palace-name-wrap {
+  display:flex; align-items:center; gap:8px;
+}
+.palace-icon { font-size:18px; }
+.palace-name {
+  font-size:15px; font-weight:700;
+  color:rgba(196,181,253,.9);
+}
+.palace-star-tag {
+  font-size:12px; color:rgba(124,58,237,.9);
+  background:rgba(124,58,237,.12);
+  border:1px solid rgba(124,58,237,.25);
+  border-radius:6px; padding:3px 10px;
+  white-space:nowrap;
+}
+.palace-domain {
+  font-size:11px; letter-spacing:1.5px;
+  color:rgba(255,255,255,.2);
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.palace-body {
+  font-size:13px; color:rgba(255,255,255,.48);
+  line-height:1.85;
+}
+
+/* loading state */
+.loading-text {
+  font-size:13px; color:rgba(255,255,255,.2);
+  text-align:center; padding:20px 0;
 }
 
 /* ── sticky bottom CTA ── */
@@ -179,34 +208,28 @@ body {
   background:rgba(7,7,15,.92);
   backdrop-filter:blur(16px);
   border-top:1px solid rgba(255,255,255,.08);
-  padding:16px 20px 28px;
-  display:flex; flex-direction:column; align-items:center; gap:10px;
+  padding:14px 20px 28px;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
 }
 .cta-label {
   font-size:11px; letter-spacing:2px;
   color:rgba(167,139,250,.5); text-transform:uppercase;
-  margin-bottom:4px;
 }
-.cta-courses {
-  display:flex; gap:10px; width:100%; max-width:480px;
+.cta-main-btn {
+  display:block; width:100%; max-width:480px;
+  padding:15px 20px;
+  background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%);
+  color:#fff; font-size:15px; font-weight:700;
+  border-radius:14px; text-decoration:none; text-align:center;
+  letter-spacing:.5px;
+  box-shadow:0 4px 24px rgba(124,58,237,.4);
+  transition:transform .2s, box-shadow .2s;
 }
-.course-btn {
-  flex:1; padding:12px 10px;
-  border-radius:12px;
-  text-decoration:none; text-align:center;
-  font-size:13px; font-weight:600;
-  transition:all .2s;
+.cta-main-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,58,237,.6); }
+.cta-coupon {
+  font-size:11px; color:rgba(196,181,253,.4);
+  letter-spacing:1px; text-align:center;
 }
-.course-btn-a {
-  background:rgba(124,58,237,.2);
-  border:1px solid rgba(124,58,237,.4); color:#c4b5fd;
-}
-.course-btn-a:hover { background:rgba(124,58,237,.35); border-color:rgba(124,58,237,.7); }
-.course-btn-b {
-  background:rgba(99,102,241,.15);
-  border:1px solid rgba(99,102,241,.35); color:#a5b4fc;
-}
-.course-btn-b:hover { background:rgba(99,102,241,.3); border-color:rgba(99,102,241,.6); }
 
 .hz-deco {
   position:fixed; bottom:120px; right:20px;
@@ -222,7 +245,7 @@ body {
 
 <div class="page">
 
-  <div class="back-link"><a href="result-free.html">← 返回命宮解讀</a></div>
+  <div class="back-link"><a id="back-btn" href="result-free.html">← 返回命宮解讀</a></div>
 
   <div class="paid-badge-row">
     <span class="paid-badge">完整版 · 已解鎖</span>
@@ -231,157 +254,294 @@ body {
   <!-- Star Hero -->
   <div class="star-hero">
     <span class="star-emoji" id="star-emoji">✦</span>
-    <h1 class="star-name" id="star-name">紫微星</h1>
-    <p class="star-subtitle" id="star-subtitle">命宮 · 帝星 · 完整命盤</p>
+    <h1 class="star-name" id="star-name">載入中…</h1>
+    <p class="star-subtitle" id="star-subtitle">完整命盤解讀</p>
   </div>
 
   <!-- 命宮完整解讀 -->
   <div class="section-card accent">
-    <p class="section-label">命宮完整解讀</p>
-    <h2 class="section-title" id="mirror-title">你習慣站在舞台中央</h2>
-    <p class="section-body" id="mirror-body">
-      命宮主星是你潛意識最底層的<strong>驅動程式</strong>。<br><br>
-      你本能地渴望被看見、被尊重。這不是自大，而是靈魂深處對<strong>意義感</strong>的渴求——你需要感覺自己的存在有重量。<br><br>
-      這面鏡子照出的，是你在關係中習慣掌控、在壓力下趨向孤立的那一面。深度的孤獨感往往在最風光的時刻悄悄升起。
-    </p>
-    <div class="traits-grid" id="traits-grid">
-      <div class="trait-pill">天生領導力</div>
-      <div class="trait-pill">渴望被看見</div>
-      <div class="trait-pill">強烈自尊心</div>
-      <div class="trait-pill">孤獨感</div>
-    </div>
+    <p class="section-label">命宮 · 靈魂核心</p>
+    <p class="section-body" id="ming-layer1">載入中…</p>
+    <div class="layer2-block" id="ming-layer2"></div>
+    <div class="traits-grid" id="traits-grid"></div>
+    <p class="palace-hint-block" id="palace-hint"></p>
   </div>
 
   <!-- Divider -->
-  <div class="section-divider"><span class="divider-label">完整 12 宮</span></div>
+  <div class="section-divider"><span class="divider-label">完整 12 宮解讀</span></div>
 
-  <!-- 12 宮 -->
+  <!-- 12 宮 grid（動態產生） -->
   <div class="palace-grid" id="palace-grid">
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">命宮</span>
-        <span class="palace-stars" id="palace-ming">紫微星</span>
-      </div>
-      <p class="palace-body">主星已在上方詳細解讀。你的靈魂藍圖核心是帝王型人格，需要在「掌控感」與「放手」之間找到平衡。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">兄弟宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">兄弟宮顯示你與手足、同儕的互動模式，以及你在平輩關係中的慣性位置。完整解讀根據實際排盤結果呈現。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">夫妻宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">夫妻宮揭示你在親密關係中的潛意識期待與慣性模式。你在伴侶關係中習慣扮演的角色，以及吸引你的對象特質。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">子女宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">子女宮不只代表孩子，也象徵你的創造力、作品，以及你「生出」東西的能量狀態與模式。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">財帛宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">財帛宮解碼你與金錢的深層關係——你如何賺錢、如何花錢，以及你對「豐盛」的潛意識信念。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">疾厄宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">疾厄宮反映身體儲存的情緒模式，以及你的能量體在哪些部位容易累積壓力與創傷。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">遷移宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">遷移宮揭示你在陌生環境中的表現，以及出外、旅行、跨地域發展的能量狀態與機緣。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">交友宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">交友宮顯示你在人際關係中的慣性，你的下屬、友人，以及「貴人」的能量特質在哪裡出現。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">事業宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">事業宮指向你的靈魂工作路徑，以及你的天賦能量在哪種類型的工作中最容易流動與發揮。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">田宅宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">田宅宮代表你的原生家庭能量，以及你對「家」這個概念的深層認知與情感模式。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">福德宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">福德宮是你的內心世界——你如何自我對話、你的精神世界的豐富程度，以及你真正的快樂來源。</p>
-    </div>
-
-    <div class="palace-card">
-      <div class="palace-header">
-        <span class="palace-name">父母宮</span>
-        <span class="palace-stars">待排盤佔位</span>
-      </div>
-      <p class="palace-body">父母宮解碼你與父母的關係模式，以及這份早期連結如何形塑你對「權威」與「被愛」的信念。</p>
-    </div>
-
+    <p class="loading-text">排盤計算中，請稍候…</p>
   </div>
 
   <!-- 莫子觀點 -->
   <div class="section-card" style="margin-bottom:20px;">
     <p class="section-label">莫子觀點</p>
-    <h2 class="section-title">命盤不是宿命，是地圖</h2>
     <p class="section-body">
-      紫微斗數給你的不是「你會怎樣」，而是「你的預設模式是什麼」。<br><br>
-      當你看見自己的慣性，你就有機會在下一次慣性啟動的瞬間，<strong>暫停一秒，選擇不同的回應</strong>。<br><br>
-      這就是靈性成長的真實樣貌——不是超脫，而是在熟悉的模式中，一次一次地做出有意識的選擇。
+這張命盤不是你的宿命書，是你的潛意識地圖。
+
+每一個宮位裡的星，都代表你在那個生命領域裡，帶進來的<strong>慣性劇本</strong>。
+
+看見它，不是為了接受它——而是為了在下一次它啟動的瞬間，你能暫停一秒，選擇不同的回應。
+
+這就是命盤的真正用途。
     </p>
   </div>
 
 </div>
 
 <!-- Sticky Bottom CTA -->
-<div class="bottom-cta">
-  <p class="cta-label">莫子課程推薦</p>
-  <div class="cta-courses">
-    <a class="course-btn course-btn-a" href="#">靈魂藍圖<br>工作坊</a>
-    <a class="course-btn course-btn-b" href="#">雙生紫焰<br>完整課程</a>
-  </div>
+<div class="bottom-cta" id="bottom-cta" style="display:none;">
+  <p class="cta-label">莫子推薦課程</p>
+  <a id="cta-btn" class="cta-main-btn" href="#" target="_blank">了解終點系統</a>
+  <p class="cta-coupon" id="cta-coupon"></p>
 </div>
 
 <div class="hz-deco" id="hz-deco">完整命盤</div>
 
+<script src="stars-data.js"></script>
 <script>
-// ── Canvas wave ──
+// ═══════════════════════════════════════════════
+//  12 宮 × 14 主星  詮釋資料庫
+// ═══════════════════════════════════════════════
+const PALACE_STAR_CONTENT = {
+
+  '兄弟宮': {
+    icon: '🤝', domain: '平輩關係 · 資源共享',
+    stars: {
+      '紫微': `你在手足和同輩中，往往自然地站到核心位置——別人找你、依賴你、把你當成標準。但這份中心感也帶來了一種難以言說的孤立：你很難真正「只是其中一個人」。潛意識模式：需要被尊重，才能放鬆地和他們在一起。`,
+      '天機': `你在平輩中是點子最多的人，也是最容易改變計畫的人。合作往往因你的靈活而難以收尾。與手足之間可能因思路和節奏不同，而有一種說不清的距離感。`,
+      '太陽': `你在兄弟姐妹中往往是付出最多的那一個。你有沒有算過，你給出去了多少，又收回了什麼？那份說不出口的「為什麼只有我在付出」，可能已經悶了很久了。`,
+      '武曲': `你與手足或同輩的關係偏向務實——有事一起做，但情感交流不多。你們之間的連結更像是「戰友」，而不是在一起就可以放鬆的人。`,
+      '天同': `你與手足或同輩之間關係輕鬆，不太有衝突，但也缺少深度。你習慣用「沒事、還好」維持表面的和諧，而心裡真正想說的，不一定說得出口。`,
+      '廉貞': `你與兄弟姐妹或同輩之間的關係，要嘛非常親密，要嘛有明顯的是非。中間地帶很少。這段關係帶給你強烈的情緒波動，愛恨都比別人的濃。`,
+      '天府': `你在平輩中是最穩、最可靠的人。大家有事找你，你也習慣扛起責任。但這讓你默默累積了很多「為什麼只有我要負責」的隱性怨氣。`,
+      '太陰': `你與手足的關係細膩而敏感，能感受到他們情緒的細微變化。但這份敏感也讓你容易在這段關係裡受傷——有時候是不小心說的一句話，就能讓你難受很久。`,
+      '貪狼': `你在平輩中很有魅力，交際能力強，但深度承諾和長期支持對你來說有時是挑戰。你喜歡這段關係熱鬧而自由，不喜歡被義務綁住。`,
+      '巨門': `你與兄弟姐妹或同輩之間容易有口舌是非或誤會。你說話直接、有力，但說出去的話常常比你以為的更傷人，留下了你自己可能沒有意識到的裂縫。`,
+      '天相': `你在平輩中是天然的協調者——有人有矛盾，都找你說話。但你在這段關係中常常忘了問自己：我真正的立場是什麼？我需要什麼？`,
+      '天梁': `你在手足或同輩中往往是最成熟、最有智慧的那一個，大家把你當長者一樣請教。但這讓你在這段關係裡難以真正「平輩」相處，很少有人把你當一個也需要被支持的人。`,
+      '七殺': `你與手足或同輩的關係獨立而疏離。你不依賴他們，也不需要他們常常出現。各自獨立是你最舒服的模式，但有時候你也想知道：如果我需要的時候，有人可以在嗎？`,
+      '破軍': `你與兄弟姐妹或同輩的關係經歷過明顯的波動，甚至決裂或重建。這些起伏讓你學會了很多，但也讓你在進入平輩關係時，保持著一種「不完全信任」的防衛距離。`,
+      '': `兄弟宮空宮，代表這段關係在你的生命藍圖裡相對淡薄。你習慣獨自面對，不太依賴手足或同輩的支持。這不是缺憾，而是你這一世選擇了從其他方向學習關係課題。`
+    }
+  },
+
+  '夫妻宮': {
+    icon: '💑', domain: '親密關係 · 伴侶模式',
+    stars: {
+      '紫微': `夫妻宮紫微，你在親密關係中往往是那個掌方向盤的人，或者你吸引的伴侶是有地位感、讓你有所依的人。你在關係裡需要被尊重，一旦感覺被輕視，就很難放下。潛意識信念：「我值得一段有尊嚴的愛情。」但有時這份對被看見的渴望，讓你把控制當成了愛。`,
+      '天機': `夫妻宮天機，你在關係中很動腦——想太多、分析太多。情感本來是感受的，你卻常常把它變成了解題。你的伴侶有時會說：你到底有沒有在感覺？`,
+      '太陽': `夫妻宮太陽，你在關係中是那個發光給溫暖的人，你給予、你照顧、你付出。但這份光有時候變成了一種隱形的控制——因為你需要伴侶也在你的光裡，你才安心。你有沒有想過：你也可以接受別人照耀你？`,
+      '武曲': `夫妻宮武曲，你用行動表達愛，而不是語言。對你來說，「我幫你做」就是「我愛你」。但你的伴侶可能需要被說出來的愛，而不只是被照顧到的事。情感溝通，是這段關係最需要的功課。`,
+      '天同': `夫妻宮天同，你渴望輕鬆、沒有壓力的關係。你迴避衝突，即使有話說不清楚，你也寧願跳過。但那些說不清楚的，不會消失——它們在關係的底層慢慢積累，等到某一天突然爆炸。`,
+      '廉貞': `夫妻宮廉貞，你的愛情強烈而全力以赴。你愛的時候義無反顧，不愛了也可以切得乾淨。這份強度讓你的愛情充滿張力，但也讓關係容易走向極端——非常好或非常壞，很少有平靜的中間地帶。`,
+      '天府': `夫妻宮天府，你在關係中是那個穩定的基石，你保護、你給安全感、你負責任。但過度的穩定有時讓關係失去活力，你的伴侶可能渴望你也能有一些衝動和驚喜。`,
+      '太陰': `夫妻宮太陰，你在親密關係中極度敏感——伴侶一個眼神、一個語氣，你都能接收到。這是細膩，也是脆弱。你常常在沒有人說什麼的時候，就已經感覺到了某種距離，然後開始默默難過。`,
+      '貪狼': `夫妻宮貪狼，你的伴侶往往魅力十足，或者你在關係早期被強烈的吸引力驅動。但你有時候愛上的是那個「感覺」，而不完全是那個人。當感覺消退，你開始覺得不夠，然後尋找下一個刺激點。`,
+      '巨門': `夫妻宮巨門，口舌是你的關係裡最大的危機。你說話直接、犀利，而你最在乎的人，也最容易被你不小心說出口的話傷到。你不是故意的，但說出去的話無法收回。學習「說之前停一秒」是這段關係送給你的課題。`,
+      '天相': `夫妻宮天相，你是很好的伴侶——體貼、周到、願意為對方付出。但你常常忘了問自己：我在這段關係裡，想要的是什麼？你太習慣成全對方，有時候連自己的需求都說不清楚了。`,
+      '天梁': `夫妻宮天梁，你在親密關係中往往是照顧者的角色——你有智慧、你給穩定、你幫伴侶解決問題。但這讓你難以被照顧、被心疼。你有多久，沒有讓伴侶看見你也需要被支持了？`,
+      '七殺': `夫妻宮七殺，你的伴侶需要夠強才能和你並肩——你不喜歡軟弱的對方，也不允許自己在關係中示弱。但這份「強強聯手」的期待，讓你在最脆弱的時候，還是選擇一個人撐著，不讓伴侶看見你需要被扶一把。`,
+      '破軍': `夫妻宮破軍，你的感情路往往大起大落。每一段深刻的關係，都讓你的某個部分徹底改變，甚至讓你重新認識自己。這些震盪是代價，也是禮物——你比大多數人更清楚，真實的愛情是什麼樣子。`,
+      '': `夫妻宮空宮，代表你在親密關係中的模式，更多由其他宮位的星決定。空宮不代表孤獨，而是說這段關係在你的靈魂課題裡，需要你主動去創造和選擇，而不是等待命定的安排。`
+    }
+  },
+
+  '子女宮': {
+    icon: '🌱', domain: '創造力 · 作品 · 孩子關係',
+    stars: {
+      '紫微': `你的創作和孩子關係中有一種主導欲——你習慣主導，你有標準，你希望看到優秀的結果。但這份對完美的要求，有時讓你和孩子（或你的創作）之間缺少了輕鬆和玩耍。`,
+      '天機': `你和孩子的互動充滿智識交流，你的創造力多變靈活，點子不斷。但你的作品和計畫也常常因為太多靈感而難以完成——「完成一件事」是這個宮位給你的功課。`,
+      '太陽': `你對孩子慷慨而有光，你的陪伴是孩子最大的溫暖來源。但你有時付出太多，把自己燃燒掉了，反而讓孩子不知道怎麼消化你給的這份重量。`,
+      '武曲': `你對孩子的愛很實際——你確保他們有所需要的，你負責任、你執行。但情感的部分不是你的強項，孩子可能感受到你的用心，卻少了一些被說出來的溫柔。`,
+      '天同': `你和孩子的關係輕鬆、沒有壓力，你更像是朋友而不是威權的父母。這是天賦，也是課題——有時候孩子需要的不只是玩伴，還需要一個能設定界限的大人。`,
+      '廉貞': `你和孩子的關係充滿情感張力——愛得很深，但衝突也不少。你的熱情和強度是你給孩子最珍貴的東西，但當你在壓力下失控時，孩子是最先感受到的人。`,
+      '天府': `你給孩子最多的是安全感和穩定。但你有時太謹慎，讓孩子在你的保護下，少了一些探索和冒險的空間。`,
+      '太陰': `你對孩子極度敏感和細膩，能感受到他們細微的情緒變化。但你有時替孩子承接了太多情緒，分不清楚哪些是他的感受，哪些是你的。`,
+      '貪狼': `你的創造力豐沛多元，你的孩子往往個性鮮明而有吸引力。但你和孩子之間有一種微妙的張力——你需要空間，他們需要你的持續在場，這之間的平衡是你的功課。`,
+      '巨門': `你和孩子之間的溝通是最大的課題。你說的話對孩子影響深遠，一句不小心的批評，可能在他們心裡住上很久。你的表達能力是天賦，但「說之前先想」是你送給孩子最好的禮物。`,
+      '天相': `你對孩子體貼而周到，習慣成全他們的需求。但你有時過度保護，或者因為怕孩子不舒服而無法設定必要的界限。`,
+      '天梁': `你是有智慧的父母，你的人生經歷和視野讓孩子受益匪淺。但你有時太習慣指導，少了傾聽——孩子需要被聽見，不只是被教導。`,
+      '七殺': `你和孩子的關係獨立而有強度。你給孩子獨立的空間，但有時你自己的獨立性，讓你在孩子需要你的時候，不知道怎麼在。`,
+      '破軍': `你和孩子的關係或你的創造能量，都走過了大起大落。每一次的破碎和重建，都是一次真正的成長——無論是你自己，還是你們的關係。`,
+      '': `子女宮空宮，代表這個生命領域在你的命盤裡相對開放。孩子或創作對你而言不是預設的主要課題，而是你主動選擇的人生章節。`
+    }
+  },
+
+  '財帛宮': {
+    icon: '💰', domain: '金錢模式 · 財富信念',
+    stars: {
+      '紫微': `財帛宮紫微，你的財富往往和地位、名聲、人脈密不可分——當你有了聲望，錢自然跟來。但你對金錢的要求不只是夠用，你需要財富有一種重量感，能彰顯你的存在。潛意識信念：「我值得的不只是一般，而是最好的。」`,
+      '天機': `你的賺錢方式多變靈活，能在很多地方找到機會，但也容易因為思路太多而分散，難以在一個方向上持續累積財富。靈活是你的天賦，但「把一件事做深」才是你真正的財富之道。`,
+      '太陽': `你的財運往往與付出和社交能量成正比——你慷慨大方，給出去了就不太計較，但這也讓錢在你身上不容易停留。你需要學習：給出去的同時，也允許財富回流到自己身上。`,
+      '武曲': `財帛宮武曲是非常強的財務配置——你對數字敏感，有天然的執行力，能把想法變成真實的收入。這是你的財務天賦，好好使用它。`,
+      '天同': `你對金錢的態度輕鬆而隨緣，不會為了錢拼命，也不執著於累積。這份知足常樂是福氣，但在需要主動創造財富的時刻，你的被動性可能讓機會悄悄流走。`,
+      '廉貞': `你的財運起伏大——有時候驚喜豐收，有時候大起大落。你對金錢的態度衝動，很容易在情緒下做出財務決定。最大的風險不是市場，而是當下的衝動。`,
+      '天府': `財帛宮天府是非常穩固的財務能量——你有天然的積累和保存財富的能力，不容易大起大落。你的財富不一定最耀眼，但往往是最持久的。`,
+      '太陰': `財帛宮太陰，太陰本身就是財星——這是極好的配置。你的財富往往來自細膩而非明顯的管道，幕後型、服務型、直覺型的財富來源特別適合你。你的錢往往在安靜中積累。`,
+      '貪狼': `你有多元的賺錢管道和強烈的賺錢欲望，但你也很擅長花——賺多少花多少。你的財富需要聚焦——把你的多元能力集中在一個方向上，才能真正累積。`,
+      '巨門': `你的財富往往透過口才、知識、分析能力帶來——你說的話是有價值的。但這個位置也代表財務上容易有是非、爭議或糾紛，合作金錢的事情需要特別謹慎，白紙黑字最安全。`,
+      '天相': `你的財富往往透過合作、輔助他人的方式獲得。你不是那種一個人單打獨鬥的財富能量，而是在良好的合作關係裡，財運才最順暢。`,
+      '天梁': `你的財運偏向穩定但不容易大富——你對金錢的態度比較淡然，夠用就好。但「夠用就好」的信念有時讓你在財富的主動創造上拉手煞車，需要允許自己「可以更多」。`,
+      '七殺': `財帛宮七殺，你的財運有強大的爆發潛力，但也容易大起大落——有時候衝到高點，有時候快速耗散。你需要一個「守財」的系統，才能讓你的爆發力累積成真正的財富基礎。`,
+      '破軍': `你的財務狀態常常在破壞和重建中循環。你花錢的方式大膽，也願意為了新的可能放棄已有的。這份勇氣帶來了機會，但你的財務安全感往往建立在下一個破壞之前。`,
+      '': `財帛宮空宮，代表你與金錢的關係比較自由、不受單一星主導。財運受流年影響較大，你對金錢的態度往往是中立的——錢來了好好用，錢少了也不太慌。`
+    }
+  },
+
+  '疾厄宮': {
+    icon: '🌿', domain: '身體信號 · 能量模式',
+    stars: {
+      '紫微': `你的身體往往跟你的控制感直接連動——當你感覺失控、被忽視，或需要扛太多時，身體就會開始發出訊號。你的身體是你最誠實的鏡子。`,
+      '天機': `你的神經系統高度靈敏，思緒快、容易過度思考，導致腦子很難真正休息。長期壓力往往先在神經系統和消化系統出現，你的身體在說：夠了，讓我休息一下。`,
+      '太陽': `你的能量消耗模式是「給出去」——你燃燒自己照亮別人，但你的身體需要有人替你充電。學習接受別人的照顧，不只是心理課題，也是身體保養的必要功課。`,
+      '武曲': `你的身體耐受力強，你是那種硬撐到最後一刻才承認自己累了的人。但身體是誠實的——它會用更大的方式提醒你它的極限在哪裡。`,
+      '天同': `你的身體喜歡輕鬆、不喜歡壓力。你的能量模式偏向流動而非衝刺，強迫自己在高壓下維持會讓身體很快發出警報。`,
+      '廉貞': `你的情緒和身體高度連動——壓抑的怒氣、說不出口的慾望，都會在身體裡找出口。你的身體需要你給它流動的空間，而不是用意志力壓著它。`,
+      '天府': `你的體質偏向穩健，但過度的穩定和不動也讓你的身體容易遲滯。你需要的不是劇烈運動，而是定期的流動和清空，讓身體的能量不要堵住。`,
+      '太陰': `你的身體極度敏感，容易受到外界能量的影響。在人多的地方、能量複雜的場合，你的身體會比別人更快感覺到疲憊。你需要比一般人更多的獨處時間來讓身體復原。`,
+      '貪狼': `你的身體慾望強烈——你享受感官的刺激，食、飲、睡眠的節律影響你的健康很大。過度放縱或過度壓抑都不適合你，平衡慾望是你的養生之道。`,
+      '巨門': `你的口腔、消化系統，以及「說與不說」的張力，跟你的健康密切相關。那些說不清楚、悶在心裡的話，往往在身體裡找到了另一個出口。`,
+      '天相': `你的身體狀態和你的人際關係品質高度相關——當關係和諧時你容光煥發，當關係有張力時你的身體最先感覺到壓力。你需要一個能量邊界，保護自己不被別人的狀態拖著走。`,
+      '天梁': `你的體質有一種耐久力，你能承受比一般人更多的壓力，但也因此容易忽略身體早期的小訊號。等到你「感覺到」的時候，往往已經需要認真休息了。`,
+      '七殺': `你的身體爆發力強，能量充沛，但你習慣把自己用到極限。你的健康需要你主動設置休息的節點——不是因為累了才休息，而是在累之前就補充。`,
+      '破軍': `你的身體能量不穩定，有時電力全滿、有時耗盡。這種波動往往跟你的生命狀態直接相連——當你在破壞和重建的循環裡時，身體是最誠實的記錄者。`,
+      '': `疾厄宮空宮，代表你的健康狀態相對受流年影響，無特定的長期模式。保持基本的生活規律是最好的養生方式。`
+    }
+  },
+
+  '遷移宮': {
+    icon: '✈️', domain: '外部世界 · 出外運勢',
+    stars: {
+      '紫微': `你在陌生的環境或異鄉往往能得到比本地更好的發展——別人更容易在不熟悉的場合給你帝王般的尊重。出外或跨域的機會對你來說往往是命運的關鍵節點。`,
+      '天機': `你在外部世界的適應力極強，能快速融入新環境、找到機會。你的人生往往因為一次「移動」而打開了完全不同的可能性。`,
+      '太陽': `你在外部世界非常耀眼——出外有貴人、有光環，別人容易被你的能量吸引。你的運勢往往在被看見的舞台上流動得最順暢。`,
+      '武曲': `你在外部世界的行動力和執行力讓你容易脫穎而出。出外創業、獨立發展是你的強項——你需要一個不受太多限制的空間才能真正爆發。`,
+      '天同': `你在外部環境中隨遇而安，哪裡都能找到輕鬆的感覺。你的出外運不是特別強烈，但也不容易遇到大麻煩——一種平穩的旅途。`,
+      '廉貞': `你的外部世界充滿了強度——你出外容易遇到極端的好或極端的挑戰。你在外面的能量比在熟悉環境裡更活躍，但也需要注意衝動下的決定帶來的是非。`,
+      '天府': `你在外部世界是那個穩定的存在——別人在動盪裡找你，你在陌生環境裡能很快建立安全感。出外的發展對你來說是穩紮穩打的進程。`,
+      '太陰': `你在外部世界更容易退到幕後、在安靜的角落發光。你的出外運需要一個適合你敏感能量的環境——不是所有地方都適合你，但一旦找到對的地方，你能在那裡深深紮根。`,
+      '貪狼': `你的外部世界豐富多彩——你出外很容易認識人、拓展圈子，各種機會和誘惑都有。你的魅力在陌生環境中更容易發揮，但需要注意不要因為太多選擇而失去方向。`,
+      '巨門': `你在外部世界往往是那個說話的人——你的知識和口才在外面的世界裡是你最大的通行證。但在陌生環境裡的是非也不少，謹言慎行是保護自己的方式。`,
+      '天相': `你在外部世界中容易找到合作夥伴和貴人——你的協調能力在陌生環境中特別受歡迎。你的出外運往往靠關係而流動，建立連結是你的最大優勢。`,
+      '天梁': `你出外往往成為別人的智慧來源——你在陌生地方容易被視為有見識的人而獲得尊重。你的出外運偏向緩慢而穩健，但一旦扎根往往長久。`,
+      '七殺': `你在外部世界的能量非常獨立而有衝勁——你不怕陌生，甚至在挑戰性的環境裡更能爆發。你的出外運需要你真正去動，坐在原地是七殺能量最大的浪費。`,
+      '破軍': `你在外部世界往往是打破舊格局的那一個——你出外容易遇到大的變動或轉折，但每一次的震盪都是新的起點。你的出外運是「破了再建」型的，需要你有承受不確定的勇氣。`,
+      '': `遷移宮空宮，代表你在外部世界的運勢相對平穩，沒有特別強烈的出外能量。你的主要人生舞台可能更在本地、熟悉的環境裡。`
+    }
+  },
+
+  '交友宮': {
+    icon: '🌐', domain: '友誼 · 人際網絡 · 貴人',
+    stars: {
+      '紫微': `你吸引的友人往往是有地位感、有能力的人，你的人脈圈子有一種質量——你不需要很多朋友，但你需要的是互相尊重的深度連結。`,
+      '天機': `你的朋友圈多元而善變——你認識各種各樣的人，但真正深度的關係不多。你在友誼中是那個點子人，但當你需要支持的時候，能真正在場的人有多少？`,
+      '太陽': `你在人際圈中是那個付出的人——你給溫暖、給支持、給光。但你需要學習的是：如何讓別人也給你。真正的友誼是雙向的流動，不是你一個人燃燒。`,
+      '武曲': `你對友情很實際——你的朋友知道你在的時候就是真的在，但你不擅長無目的的閒聊和情感維護。這讓你的友誼有深度，但有時讓人感覺難以親近。`,
+      '天同': `你在友誼中輕鬆、隨和，大家都喜歡和你在一起，因為跟你在一起不累。但這份不製造麻煩的姿態，有時讓你在需要真正支持的時候，說不出口真正需要的是什麼。`,
+      '廉貞': `你的友誼有強度——你重義氣、講原則，在乎的人你全力以赴，不在乎的人你可以完全看不見。這讓你的友誼非常深刻，但也容易因為原則衝突而決裂。`,
+      '天府': `你在友誼中是那個穩定的支柱——朋友有事都找你，你也習慣扛起來。這讓你成為大家信任的人，但也讓你在這段關係裡承擔了很多隱性責任。`,
+      '太陰': `你在友誼中細膩而敏感，能感受到朋友情緒的細微變化。但這也讓你在人際關係裡容易過度接收別人的能量，需要謹慎選擇你的交友環境。`,
+      '貪狼': `你很會交際，認識的人很廣，魅力讓你在任何圈子裡都能找到位置。但「認識很多人」和「真正被人支持」之間有差距，這是你最需要思考的問題。`,
+      '巨門': `你的友誼裡容易有口舌是非——或者你在朋友之間是那個說真話的人，或者因為你的直接而引發了不必要的誤會。說話的藝術是你在人際關係裡最重要的功課。`,
+      '天相': `你在友誼中是天然的協調者——有紛爭的地方，大家都找你。但你常常在協調別人的同時，忘記了自己也需要有人協調、有人支持。`,
+      '天梁': `你在友誼中往往扮演「智者」或「照顧者」的角色——朋友喜歡找你談心、請你給建議。但這讓你的友誼有一種上下的關係感，你有多久沒有以平等的姿態被人照顧了？`,
+      '七殺': `你對友誼要求高——能和你真正連結的人不多，但那幾個人，你用整個背脊保護他們。你不需要一群朋友，但你需要一個能真正懂你的人。`,
+      '破軍': `你的友誼圈經歷過明顯的破壞和重建——舊的關係結束，新的關係進入，每一次都是靈魂的重新篩選。這些變動讓你的友誼更真實，但過程往往令人心疼。`,
+      '': `交友宮空宮，代表你在人際關係上比較獨立，不特別依賴友情帶來的支持。你的人脈往往靠後天主動建立，需要你走出去才能讓貴人出現。`
+    }
+  },
+
+  '事業宮': {
+    icon: '🏆', domain: '天賦工作 · 靈魂職路',
+    stars: {
+      '紫微': `你天生適合在有舞台感的領域工作——領導、管理、代言某種立場的工作讓你如魚得水。你需要有意義的工作，不只是維生的手段，而是讓你覺得自己的存在有重量的平台。`,
+      '天機': `你適合需要動腦、策略、分析的工作，你的職業路徑可能不是一條直線——多次轉換和跨域是天機的常態。你最好的狀態是同時有幾個在動的計畫，讓你的思維持續保持活化。`,
+      '太陽': `你需要在被人看見、能付出影響力的工作裡才能真正燃燒——管理、演講、教學、公共事務型的工作最符合你的靈魂能量。你的天賦在於讓別人因為你而感到有光。`,
+      '武曲': `你在需要強大執行力和決策力的工作裡最能爆發——財務、工程、創業都是你的強項。你不需要很多人告訴你怎麼做，你需要的是一個目標和一條清晰的路。`,
+      '天同': `你適合服務導向、能帶來美好感覺的工作——心理、藝術、靈性服務類的工作讓你的能量自然流動。你不適合高壓競爭的環境，輕鬆但有意義的工作才是你的最佳狀態。`,
+      '廉貞': `你在需要熱情和強度的工作裡最能發揮——你不會把工作當作只是賺錢的地方，你需要在乎你做的事。當工作喚起你的熱情時，你有驚人的能量。`,
+      '天府': `你在組織結構中是天然的中流砥柱——穩定、可靠、有系統。你適合需要長期建立和維護的工作，你給的是深根型的力量，而不是衝刺型的速度。`,
+      '太陰': `你適合幕後、需要細膩和直覺的工作——研究、設計、諮詢、藝術創作都是你的天賦領域。你在安靜的工作環境裡比在人群中工作更有效率。`,
+      '貪狼': `你的天賦是多元——你能做很多事，而且每一樣都做得不差。你需要找到一個能讓你整合多元技能的工作方向，才能讓分散的能量變成競爭力。`,
+      '巨門': `你的天賦在口才、分析、教導、揭示真相——演講者、老師、分析師、諮詢師都是你的能量流動的方向。你的話是有力量的，學會用它照亮別人而非製造爭議，是你職業成熟的標誌。`,
+      '天相': `你是天然的輔佐型人才——你最好的工作狀態是在一個強大的主角旁邊，你讓他更好，他讓你有舞台。你在二把手、顧問型的工作裡如魚得水。`,
+      '天梁': `你的靈魂工作在於照顧、保護、教育他人——醫療、社工、教育、諮詢、靈性服務都是你的方向。你需要一份讓你感覺在真正「照顧什麼」的工作，才有靈魂感。`,
+      '七殺': `你在需要挑戰、獨立、突破規則的工作裡最能爆發——創業、改革、開創型的職位是你的舞台。你不能被管太死，你需要一個「讓我去做」的空間，才能真正發揮將星能量。`,
+      '破軍': `你的天職是打破舊的、建立新的——改革者、創業者、顛覆型思考者。你的職業路徑往往不是線性的，而是大幅度的轉折和重建。每一次「從頭開始」都是你靈魂最有活力的狀態。`,
+      '': `事業宮空宮，代表你的職業路徑比較受流年影響，沒有強烈的固定方向。這其實是一種自由——你不受限於某種天命職業，而是可以隨著自己的成長不斷調整和選擇。`
+    }
+  },
+
+  '田宅宮': {
+    icon: '🏠', domain: '家庭能量 · 原生家庭模式',
+    stars: {
+      '紫微': `你的家庭氛圍有一種權威感——無論是你的原生家庭有強烈的規矩和地位意識，還是你在自己建立的家庭裡扮演了核心的主導者。家對你來說需要有秩序，才能讓你感到安心。`,
+      '天機': `你的成長環境多變——家庭可能有搬遷、改變、或者家庭結構有明顯的流動。你從小學會了在不穩定中適應，這是天賦，也讓你對「家」這個概念有一種說不清楚的流動感。`,
+      '太陽': `你的家裡有一種明亮和給予的能量——你要嘛來自一個慷慨的家庭，要嘛你在自己的家中是給光的那一個。但有沒有人照顧你在家裡的疲憊？`,
+      '武曲': `你的家庭氛圍實際而重行動——家裡的人不太說軟話，但事情都做。你從小知道父母在乎你，但被說出來的愛可能是你在這段關係裡一直渴望卻沒有得到的。`,
+      '天同': `你成長的家庭氛圍相對輕鬆、沒有太多壓力。這是一種福氣，但有時也讓你在需要面對家庭裡真正的困難時，有一種逃往輕鬆的衝動。`,
+      '廉貞': `你的原生家庭有一種強烈的情感張力——家庭關係是你最大的情感學校，愛得很深，傷得也不淺。你對家的記憶裡有熱烈的部分，也有很多說不清楚的複雜。`,
+      '天府': `田宅宮天府是家庭宮最好的配置之一——你的家有豐盛和穩定的能量，家庭給你的安全感是真實而持久的。你對自己建立的家庭，也會傾注同樣的穩固和保護。`,
+      '太陰': `你的家是你最重要的充電站——你需要一個美麗、安靜、能讓你放鬆的家，才能讓你的敏感能量得到修復。家的環境對你的狀態影響極大，一個混亂的生活空間會讓你的整個能量狀態失衡。`,
+      '貪狼': `你的家充滿了活力和多元——家裡的事情多，人也多，熱鬧而有些複雜。你對家的概念比較自由，不喜歡被一個定點困住，但內心深處渴望的其實是一個真正能讓你放鬆的地方。`,
+      '巨門': `你的原生家庭可能有很多說不清楚的事，或者家人之間的溝通方式是直接而有力的。你從家庭裡帶出來的，有很多關於說話的力量和代價的學習。`,
+      '天相': `你在家裡是那個協調者——有家庭矛盾時你出來調解，有家庭需要時你承擔。這讓你在家裡備受信任，但也讓你承擔了大量的情感勞動，而這些勞動很少被看見。`,
+      '天梁': `你的家庭給了你智慧和責任感，但也可能給了你沉重的照顧負擔。你從小學會了要成熟、要負責任、要照顧別人。但你有沒有機會，在家裡也只是一個不需要負責任的孩子？`,
+      '七殺': `你的家庭背景給了你強烈的獨立性——要嘛你的成長環境很早就讓你學會靠自己，要嘛你對家有一種主動保持距離的慣性。你需要一個屬於自己的空間，才能讓你的能量真正呼吸。`,
+      '破軍': `你的家庭歷程充滿了破壞和重建——原生家庭可能有過明顯的動盪，或者你在自己的家庭中也推動了很多大的改變。這些破碎讓你失去了一些，但也讓你建立了更真實的家的概念。`,
+      '': `田宅宮空宮，代表家庭在你的命盤裡能量較為中性。你對家的感覺沒有特別強的愛或糾結，更多是一個你居住的地方，而不是你的核心能量來源。`
+    }
+  },
+
+  '福德宮': {
+    icon: '🧘', domain: '內心世界 · 真正的快樂來源',
+    stars: {
+      '紫微': `你的快樂和尊嚴感深度連結——當你感覺自己被尊重、有地位、有重量時，你的內心是充實的。但你的精神世界有一種孤獨感，那是帝王注定與眾不同的底色。你真正的滋養，來自允許自己有時候不需要是最好的那一個。`,
+      '天機': `你的內心喜歡思考——想事情對你來說是一種享受，而不只是壓力。但你的思緒有時候關不掉，讓你難以真正放鬆。你需要學習「關掉頭腦的開關」，讓自己的精神世界有一些留白。`,
+      '太陽': `你的快樂來自付出和被需要——當你對別人有用時，你的內心是充實的。但這也意味著你的幸福依賴外部的認可。你的靈魂這一世的功課：找到一種不依賴「有用」就能感到快樂的方式。`,
+      '武曲': `你的精神世界是務實的——你從「做到了」「解決了」這些事情裡得到滿足。你的快樂是行動帶來的，但你需要注意：當沒有目標可衝的時候，你要怎麼讓自己安頓？`,
+      '天同': `你的內心世界喜歡輕鬆、享樂、美好的事物——你是天生的享受生活者。你的精神世界裡有一種孩子般的部分，需要被允許玩耍、被允許不那麼認真。這是天賦，但有時也讓你在需要認真面對的時候退縮。`,
+      '廉貞': `你的內心世界充滿了強烈的渴望和是非感——你對自己的要求非常高。這讓你有靈魂深度，但也讓你的精神生活充滿了張力。你的真正快樂，在你能放下那份對自己和世界的嚴苛判斷時，才能真正降臨。`,
+      '天府': `你的精神世界穩健而豐富——你從有所積累、有所保護、有所貢獻裡得到深層滿足。你不需要大起大落的刺激，你的快樂是一種慢慢豐盈的感覺。`,
+      '太陰': `你的內心世界深邃而美麗——你有豐富的情感、直覺、和精神感受力。獨處對你來說不是孤獨，而是充電。月亮的美麗在安靜的地方才能被看見，你的靈魂也是。`,
+      '貪狼': `你的精神世界多元而有慾望——你享受探索、嘗試、感受各種生命的可能。但這份廣度有時讓你的內心難以真正安定，你一直在找下一個讓你興奮的事，卻少了在當下深深停留的能力。`,
+      '巨門': `你的精神世界裡有一個不停思辨的部分——你對事情的本質有強烈的好奇，不接受表面的答案。這讓你有深度，但也讓你的內心世界偶爾陷入自我懷疑和反覆分析的漩渦。`,
+      '天相': `你的快樂來自於關係的和諧——當身邊的人都好，你才好。這是你最大的溫柔，也是你最需要解開的枷鎖：你的快樂，不能建立在所有人的認可上。`,
+      '天梁': `你的精神世界有一種老靈魂的氣息——你對生命的意義和智慧有深切的興趣。你的真正快樂，在你能允許自己不再照顧所有人、讓自己單純地休息的時刻。`,
+      '七殺': `你的精神世界需要自由感——被約束、被控制是你最大的精神折磨。你的快樂來自獨立、突破、選擇自己的道路。這一世靈魂的功課：找到一種方式，讓你在有連結的同時，也保有你的自由。`,
+      '破軍': `你的精神世界不斷在打破和重建——你對真理有強烈的追求，不接受舊的答案。這讓你的靈魂一直在成長，但也讓你的內心世界難有長久的安寧。你需要找到一個「夠好了」的停歇點，才能讓精神的豐盛真正落地。`,
+      '': `福德宮空宮，代表你的精神世界比較受外部環境影響，沒有強烈的固定模式。你的快樂來源多元而靈活，這是一種自由，也需要你主動去探索什麼真正讓你的靈魂感到滿足。`
+    }
+  },
+
+  '父母宮': {
+    icon: '🌲', domain: '原生家庭關係 · 權威信念',
+    stars: {
+      '紫微': `你的父母或原生家庭有一種強烈的地位意識和期待——要嘛他們非常有威嚴，要嘛他們對你有很高的要求和標準。你從這段關係裡帶出來的，是對被認可的深層渴求。`,
+      '天機': `你的父母給了你靈活的頭腦和對變化的適應力，但你和他們的關係可能有一種說不穩定的感覺——溝通有時候是流動的，但有時候又錯過了對方。`,
+      '太陽': `你的父親（或父親形象）對你的影響極大——他是那個給你光和力量的人，或者是讓你學習「如何給出光」的鏡子。你對父親的情感有愛，也有一種說不清楚的期待。`,
+      '武曲': `你的父母用行動而非語言來表達愛——家裡的氛圍務實而少軟語。你從小知道父母在乎你，但被說出來的愛可能是你在這段關係裡一直渴望卻沒有得到的。`,
+      '天同': `你和父母的關係相對輕鬆——他們不太強迫你，你也沒有感覺到太多壓力。這是一種福氣，但有時也讓你在成長過程中少了一些界限和引導。`,
+      '廉貞': `你和父母的關係有強烈的情感張力——或者非常親密，或者有明顯的是非和衝突。這段關係讓你學到了很多關於熱情和界限的課題，甚至是某種程度的心理創傷。`,
+      '天府': `你的家庭給了你穩定和安全感——父母是那種可靠的、讓你知道家永遠在的人。這份穩固是你性格裡「能穩住」的能量根源。`,
+      '太陰': `你的母親（或母親形象）對你的影響非常深——她的細膩、情感方式、甚至她的恐懼，都在你的潛意識裡留下了深深的印記。你和母親的關係，是你情感世界最早的學校。`,
+      '貪狼': `你的成長環境充滿了多元和活力，父母給了你廣泛的視野，但也可能在某些方面不夠專一或持續。「深度的穩定關係」可能是你後天才慢慢建立的能力。`,
+      '巨門': `你和父母的溝通可能是你成長中最大的功課——要嘛說得太直、要嘛說不清楚，誤解和是非在這段關係裡是常態。你在家庭裡學到的，是說話的力量和代價。`,
+      '天相': `你在家庭中很早就扮演了協調者——你調解父母之間、或者在家庭系統裡填補了某個角色。你從家庭帶出來的信念：「我的存在是為了維持和諧」，需要你有意識地去鬆開。`,
+      '天梁': `你的父母有強烈的智慧和照顧能量，但這也讓你從小就覺得「我需要為了父母而成熟」。這份早熟讓你有深度，但你有沒有機會，只是做個不懂事的孩子？`,
+      '七殺': `你的成長環境要求你獨立而堅強——要嘛是父母的某種缺席，要嘛是家庭環境的某種挑戰，讓你很早就學會了靠自己。這是力量，也是你在親密關係裡不容易靠別人的根源。`,
+      '破軍': `你和父母的關係或原生家庭結構，經歷過明顯的破壞和重建——家庭的動盪是你生命早期的底色。這些震盪雖然傷過你，但也讓你比同齡人更早理解了生命的無常和重建的可能。`,
+      '': `父母宮空宮，代表你和父母的關係在你的命盤裡影響力相對淡薄。你的性格更多由自身的選擇塑造，而非被原生家庭強烈定型。`
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════
+//  Canvas wave
+// ═══════════════════════════════════════════════
 const cvs = document.getElementById('wave-canvas');
 const ctx = cvs.getContext('2d');
 let ph = 0, curHz = 500;
@@ -412,89 +572,126 @@ function draw(){
 }
 draw();
 
-// ── Star data ──
-const starData = {
-  '紫微': { emoji:'👑', subtitle:'命宮 · 帝星 · 完整命盤',
-    mirrorTitle:'你習慣站在舞台中央',
-    mirrorBody:'命宮主星紫微是你潛意識最底層的<strong>驅動程式</strong>。<br><br>你本能地渴望被看見、被尊重。這不是自大，而是靈魂深處對<strong>意義感</strong>的渴求——你需要感覺自己的存在有重量。<br><br>這面鏡子照出的，是你在關係中習慣掌控、在壓力下趨向孤立的那一面。深度的孤獨感往往在最風光的時刻悄悄升起。',
-    traits:['天生領導力','渴望被看見','強烈自尊心','孤獨感'] },
-  '天機': { emoji:'⚙️', subtitle:'命宮 · 謀略星 · 完整命盤',
-    mirrorTitle:'你的頭腦從不停歇',
-    mirrorBody:'天機坐命的你，本能地在每件事背後尋找<strong>規律與邏輯</strong>。<br><br>你擅長分析、變通，卻容易因為看見太多可能性而猶豫不決。<strong>過度思考</strong>是你最熟悉的模式。<br><br>這面鏡子照出的，是你用「再想清楚一點」迴避行動，同時用「靈活」替代深度承諾的慣性。',
-    traits:['分析思維','適應力強','多變不穩','想太多'] },
-  '太陽': { emoji:'☀️', subtitle:'命宮 · 官祿主 · 完整命盤',
-    mirrorTitle:'你需要在付出中找到自己',
-    mirrorBody:'太陽坐命的你，本能地<strong>想要發光、給予</strong>。<br><br>你的存在感來自於「對別人有用」。這是天賦，也是陷阱——當沒有人需要你，你容易感到空洞。<br><br>這面鏡子照出的，是你用付出換取認可的無意識交換，以及你如何害怕接受別人的付出。',
-    traits:['慷慨給予','社交魅力','過度燃燒','需要認可'] },
-  '武曲': { emoji:'⚔️', subtitle:'命宮 · 財帛主 · 完整命盤',
-    mirrorTitle:'你用行動和結果定義自己的價值',
-    mirrorBody:'武曲坐命的你，本能地相信<strong>行動才是真實的</strong>。<br><br>你務實、果斷、有執行力，但情感表達對你來說往往是陌生領域。你用「把事情做好」替代了「把感受說清楚」。<br><br>這面鏡子照出的，是你在親密關係中習慣用效率取代溫柔，以及那份不被理解的孤獨。',
-    traits:['執行力強','財務敏感','情感壓抑','剛硬孤獨'] },
-  '天同': { emoji:'🌊', subtitle:'命宮 · 福德主 · 完整命盤',
-    mirrorTitle:'你渴望和諧，卻常常失去自己',
-    mirrorBody:'天同坐命的你，本能地趨向<strong>平靜與無衝突</strong>。<br><br>你溫和、隨和，能在混亂中保持平衡，但這份「不想起衝突」背後，常常是你把自己的需求默默壓下去。<br><br>這面鏡子照出的，是你以「沒關係」為名的自我消融，以及你如何在長期委屈中積累怒氣。',
-    traits:['溫和隨和','享樂主義','迴避衝突','消極依賴'] },
-  '廉貞': { emoji:'🔥', subtitle:'命宮 · 次桃花 · 完整命盤',
-    mirrorTitle:'你的熱情是劍，也是傷',
-    mirrorBody:'廉貞坐命的你，本能地<strong>追求熱烈與純粹</strong>。<br><br>你有強烈的是非感，對自己在乎的事全力以赴，對不在乎的事毫無興趣。這份強度讓你魅力十足，也讓關係容易走向極端。<br><br>這面鏡子照出的，是你在壓力下的衝動模式，以及你如何在懲罰他人與懲罰自己之間循環。',
-    traits:['熱情強烈','是非分明','衝動冒險','極端思維'] },
-  '天府': { emoji:'🏛️', subtitle:'命宮 · 南斗主 · 完整命盤',
-    mirrorTitle:'你是眾人的容器，卻常常忘了填滿自己',
-    mirrorBody:'天府坐命的你，本能地扮演<strong>穩定者與保護者</strong>。<br><br>你是家庭和團隊的基石，有天然的收藏與保守傾向。這份穩健是天賦，但有時你過於謹慎，錯失了冒險帶來的成長。<br><br>這面鏡子照出的，是你用「維持現狀」作為安全感的替代品，以及那份深藏的冒險渴望。',
-    traits:['穩重可靠','保護慾強','過度謹慎','守舊抗變'] },
-  '太陰': { emoji:'🌙', subtitle:'命宮 · 財星 · 完整命盤',
-    mirrorTitle:'你的世界住在內心深處',
-    mirrorBody:'太陰坐命的你，本能地向內生長。你敏感、細膩，能感知別人感知不到的細節。<br><br>這份<strong>深層的感受力</strong>是你最大的天賦，也讓你容易被外界能量影響，需要比別人更多的獨處時間來整合。<br><br>這面鏡子照出的，是你在人群中假裝沒事、回家才崩潰的模式，以及你如何用「不麻煩別人」隔絕真實的連結。',
-    traits:['直覺敏銳','情感豐富','容易受傷','需要獨處'] },
-  '貪狼': { emoji:'🐺', subtitle:'命宮 · 桃花主 · 完整命盤',
-    mirrorTitle:'你同時渴望一切，卻不確定自己真正要什麼',
-    mirrorBody:'貪狼坐命的你，本能地被<strong>多元與可能性</strong>吸引。<br><br>你多才多藝、魅力四射，在任何環境都能找到樂趣。但這份廣度背後，有時候是深度的缺失——你跳向下一個目標，可能是因為害怕真正的深入。<br><br>這面鏡子照出的，是你用「探索」迴避承諾，以及那個害怕被關在一個選擇裡的內在小孩。',
-    traits:['魅力四射','多才多藝','欲望強烈','難以深入'] },
-  '巨門': { emoji:'💬', subtitle:'命宮 · 暗曜 · 完整命盤',
-    mirrorTitle:'你的嘴是你最強的武器，也是最深的傷口',
-    mirrorBody:'巨門坐命的你，本能地追求<strong>真相與辯證</strong>。<br><br>你口才犀利、思維深邃，能看見別人忽略的問題。但這份「直說」的衝動，有時讓你在人際關係中留下不必要的傷痕。<br><br>這面鏡子照出的，是你用「我只是說實話」作為傷人的藉口，以及你內心對被誤解的深深恐懼。',
-    traits:['思辨能力','口才犀利','懷疑心重','是非糾纏'] },
-  '天相': { emoji:'⚖️', subtitle:'命宮 · 印星 · 完整命盤',
-    mirrorTitle:'你是最好的支持者，但誰在支持你？',
-    mirrorBody:'天相坐命的你，本能地扮演<strong>協調者與輔助者</strong>。<br><br>你有天然的公正感，善於在衝突中找到平衡點。但你的能量常常消耗在幫助別人上，而忘了問自己真正想要什麼。<br><br>這面鏡子照出的，是你把「成全別人」當作逃避自我選擇的出口，以及你如何用「公正」迴避自己的立場。',
-    traits:['公正協調','樂於助人','犧牲自我','依附他人'] },
-  '天梁': { emoji:'🌿', subtitle:'命宮 · 蔭星 · 完整命盤',
-    mirrorTitle:'你用智慧保護別人，卻不願承認自己也需要被保護',
-    mirrorBody:'天梁坐命的你，本能地承擔<strong>老師、長者、守護者</strong>的角色。<br><br>你有穿透表象看見本質的能力，也有強烈的責任感。但這份「我來扛」的姿態，有時讓你無法接受自己的脆弱。<br><br>這面鏡子照出的，是你把「助人」當作防衛自己不被傷害的盔甲，以及你如何用「指引別人」迴避自己的困境。',
-    traits:['智慧深遠','責任感強','好為人師','難以示弱'] },
-  '七殺': { emoji:'⚡', subtitle:'命宮 · 將星 · 完整命盤',
-    mirrorTitle:'你為自由而生，卻常常囚禁自己',
-    mirrorBody:'七殺坐命的你，本能地<strong>抵抗限制、追求突破</strong>。<br><br>你有強烈的革新能量，不服輸、敢冒險，在逆境中反而能爆發出驚人的力量。但這份「不服管」的衝動，有時讓你在穩定的關係中製造不必要的動盪。<br><br>這面鏡子照出的，是你用衝突確認自己還活著的模式，以及你對「被約束」的深層恐懼。',
-    traits:['衝勁十足','逆境爆發','反骨不服','破壞穩定'] },
-  '破軍': { emoji:'💫', subtitle:'命宮 · 耗星 · 完整命盤',
-    mirrorTitle:'你是宇宙的破壞者，也是重生者',
-    mirrorBody:'破軍坐命的你，本能地走在<strong>打破舊結構、創造新秩序</strong>的道路上。<br><br>你的人生常常經歷大起大落，但每次崩塌都是為了更深的重建。這份「不破不立」的能量讓你獨一無二，也讓身邊的人難以捉摸。<br><br>這面鏡子照出的，是你對「失去」的恐懼如何驅動著你不停破壞自己的穩定，以及那個渴望被真正看見的靈魂。',
-    traits:['創造力強','耗散能量','不破不立','極端波動'] }
-};
-
-// ── Read URL params ──
+// ═══════════════════════════════════════════════
+//  URL Params + 命宮 render
+// ═══════════════════════════════════════════════
 const params = new URLSearchParams(window.location.search);
 const starName = params.get('star') || '紫微';
 const personName = params.get('name') || '命盤持有者';
+const year  = params.get('year');
+const month = params.get('month');
+const day   = params.get('day');
+const hour  = params.get('hour');
+const gender = params.get('gender');
 
-const data = starData[starName] || starData['紫微'];
+// update back link
+document.getElementById('back-btn').href = 'result-free.html?' + params.toString();
 
-document.getElementById('star-emoji').textContent = data.emoji;
-document.getElementById('star-name').textContent = starName + '星';
-document.getElementById('star-subtitle').textContent = data.subtitle;
-document.getElementById('mirror-title').textContent = data.mirrorTitle;
-document.getElementById('mirror-body').innerHTML = data.mirrorBody;
-document.getElementById('palace-ming').textContent = starName + '星';
-document.title = starName + '星完整命盤｜紫微斗數';
+// 命宮 content from stars-data.js
+const starData = (typeof STARS_DATA !== 'undefined' && STARS_DATA[starName])
+  ? STARS_DATA[starName]
+  : { emoji:'✦', alias:'主星', color:'#c4b5fd', tags:[], mirror:{layer1:'', layer2:''}, palace_hint:'' };
+
+document.getElementById('star-emoji').textContent   = starData.emoji;
+document.getElementById('star-name').textContent    = starName + '星';
+document.getElementById('star-subtitle').textContent = `命宮 · ${starData.alias} · 完整命盤`;
+document.getElementById('ming-layer1').textContent   = starData.mirror.layer1;
+document.getElementById('ming-layer2').textContent   = starData.mirror.layer2;
+document.getElementById('palace-hint').textContent   = starData.palace_hint;
+document.title = starName + '星完整命盤｜紫微斗數 × 莫子觀點';
 
 const traitsGrid = document.getElementById('traits-grid');
-traitsGrid.innerHTML = data.traits.map(t => `<div class="trait-pill">${t}</div>`).join('');
+traitsGrid.innerHTML = (starData.tags||[]).map(t => `<div class="trait-pill">${t}</div>`).join('');
 
 document.getElementById('hz-deco').textContent = starName + '星';
 
-// update back link to carry params
-const backLink = document.querySelector('.back-link a');
-backLink.href = 'result-free.html?' + params.toString();
+// CTA
+if (typeof CTA_CONFIG !== 'undefined') {
+  const activeCtas = Object.values(CTA_CONFIG).filter(c => c.active);
+  if (activeCtas.length > 0) {
+    const cta = activeCtas[0];
+    document.getElementById('cta-btn').href = cta.url;
+    document.getElementById('cta-btn').textContent = cta.title || '了解課程';
+    if (cta.coupon && cta.coupon.code) {
+      document.getElementById('cta-coupon').textContent =
+        `優惠碼 ${cta.coupon.code}｜${cta.coupon.desc || ''}`;
+    }
+    document.getElementById('bottom-cta').style.display = 'flex';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  iztro 計算完整 12 宮
+// ═══════════════════════════════════════════════
+const HOUR_INDEX = { 子:0,丑:1,寅:2,卯:3,辰:4,巳:5,午:6,未:7,申:8,酉:9,戌:10,亥:11 };
+
+const PALACE_ORDER = [
+  '兄弟宮','夫妻宮','子女宮','財帛宮','疾厄宮',
+  '遷移宮','交友宮','事業宮','田宅宮','福德宮','父母宮'
+];
+
+// iztro 使用「官祿宮」，我們顯示「事業宮」
+const IZTRO_NAME = { '事業宮': '官祿宮' };
+
+async function buildPalaceGrid() {
+  const grid = document.getElementById('palace-grid');
+  let palaceStars = {};
+
+  if (year && month && day && hour && gender) {
+    try {
+      const { astro } = await import('https://esm.sh/iztro@2.4.0');
+      const dateStr = `${year}/${month}/${day}`;
+      const timeIdx = HOUR_INDEX[hour] ?? 0;
+      const g = gender === 'male' ? '男' : '女';
+      const astrolabe = astro.bySolar(dateStr, timeIdx, g, true, 'zh-TW');
+
+      for (const pName of PALACE_ORDER) {
+        const iztroKey = IZTRO_NAME[pName] || pName;
+        const palace = astrolabe.palace(iztroKey);
+        const mainStars = (palace?.majorStars || [])
+          .filter(s => s.type === 'major')
+          .map(s => s.name.replace('星',''));
+        palaceStars[pName] = mainStars;
+      }
+    } catch(err) {
+      console.warn('iztro error, using fallback', err);
+    }
+  }
+
+  // render cards
+  grid.innerHTML = '';
+  for (const pName of PALACE_ORDER) {
+    const content = PALACE_STAR_CONTENT[pName];
+    if (!content) continue;
+
+    const stars = palaceStars[pName] || [];
+    const primaryStar = stars[0] || '';
+    const starText = stars.length > 0
+      ? stars.join('、') + '星'
+      : '空宮';
+
+    const bodyText = content.stars[primaryStar]
+      || content.stars['']
+      || `${pName}的解讀將根據你的命盤計算後呈現。`;
+
+    const card = document.createElement('div');
+    card.className = 'palace-card';
+    card.innerHTML = `
+      <div class="palace-header">
+        <div class="palace-name-wrap">
+          <span class="palace-icon">${content.icon}</span>
+          <span class="palace-name">${pName}</span>
+        </div>
+        <span class="palace-star-tag">${starText}</span>
+      </div>
+      <p class="palace-domain">${content.domain}</p>
+      <p class="palace-body">${bodyText}</p>
+    `;
+    grid.appendChild(card);
+  }
+}
+
+buildPalaceGrid();
 </script>
 </body>
 </html>
