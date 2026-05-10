@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>輸入生辰｜紫微斗數命盤</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#07070f;
+  color:#e8e8f0;
+  font-family:'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+#wave-canvas {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  z-index:0; pointer-events:none; opacity:.15;
+}
+
+.page {
+  position:relative; z-index:1;
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-start;
+  padding:48px 20px 80px;
+}
+
+/* ── back link ── */
+.back-link {
+  align-self:flex-start;
+  max-width:480px; width:100%;
+  margin-bottom:28px;
+}
+.back-link a {
+  font-size:13px; color:rgba(167,139,250,.6);
+  text-decoration:none; letter-spacing:.5px;
+  transition:color .2s;
+}
+.back-link a:hover { color:rgba(167,139,250,1); }
+
+/* ── heading ── */
+.page-title {
+  font-size:clamp(24px,5vw,36px);
+  font-weight:800; text-align:center;
+  margin-bottom:8px;
+  background:linear-gradient(135deg,#fff 0%,#c4b5fd 50%,#818cf8 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.page-sub {
+  font-size:13px; color:rgba(255,255,255,.35);
+  text-align:center; margin-bottom:40px; line-height:1.7;
+}
+
+/* ── form card ── */
+.form-card {
+  width:100%; max-width:480px;
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(124,58,237,.2);
+  border-radius:24px;
+  padding:36px 28px 32px;
+}
+
+.field-group {
+  margin-bottom:22px;
+}
+
+.field-label {
+  display:block;
+  font-size:12px; letter-spacing:1.5px;
+  color:rgba(167,139,250,.7);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.field-input,
+.field-select {
+  width:100%;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  padding:14px 16px;
+  font-size:16px;
+  color:#e8e8f0;
+  font-family:inherit;
+  outline:none;
+  transition:border-color .2s, background .2s;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.field-input::placeholder { color:rgba(255,255,255,.2); }
+.field-input:focus,
+.field-select:focus {
+  border-color:rgba(124,58,237,.7);
+  background:rgba(124,58,237,.08);
+}
+
+/* select arrow */
+.select-wrap {
+  position:relative;
+}
+.select-wrap::after {
+  content:'▾';
+  position:absolute; right:16px; top:50%;
+  transform:translateY(-50%);
+  color:rgba(167,139,250,.5);
+  pointer-events:none; font-size:14px;
+}
+.field-select option {
+  background:#1a0a3a; color:#e8e8f0;
+}
+
+/* date row */
+.date-row {
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:10px;
+}
+
+/* gender row */
+.gender-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.gender-btn {
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  padding:14px;
+  text-align:center;
+  font-size:15px; font-weight:600;
+  color:rgba(255,255,255,.4);
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.gender-btn.active,
+.gender-btn:hover {
+  border-color:rgba(124,58,237,.7);
+  background:rgba(124,58,237,.15);
+  color:#c4b5fd;
+}
+
+/* divider */
+.form-divider {
+  height:1px; background:rgba(255,255,255,.06);
+  margin:28px 0;
+}
+
+/* submit */
+.submit-btn {
+  width:100%;
+  padding:18px;
+  background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%);
+  color:#fff;
+  font-size:17px; font-weight:700;
+  border-radius:14px;
+  border:none; cursor:pointer;
+  letter-spacing:1px;
+  transition:transform .2s, box-shadow .2s;
+  box-shadow:0 4px 28px rgba(124,58,237,.4);
+  font-family:inherit;
+}
+.submit-btn:hover {
+  transform:translateY(-2px);
+  box-shadow:0 8px 36px rgba(124,58,237,.6);
+}
+.submit-btn:active { transform:translateY(0); }
+
+/* hint */
+.form-hint {
+  font-size:12px; color:rgba(255,255,255,.2);
+  text-align:center; margin-top:16px; line-height:1.7;
+}
+
+.hz-deco {
+  position:fixed; bottom:32px; right:28px;
+  font-size:11px; letter-spacing:2px;
+  color:rgba(255,255,255,.1);
+  pointer-events:none; z-index:0;
+}
+
+/* error state */
+.field-error {
+  font-size:12px; color:#f87171;
+  margin-top:6px; display:none;
+}
+</style>
+</head>
+<body>
+
+<canvas id="wave-canvas"></canvas>
+
+<div class="page">
+
+  <div class="back-link"><a href="index.html">← 返回</a></div>
+
+  <h1 class="page-title">輸入你的生辰</h1>
+  <p class="page-sub">時辰決定命宮，盡量填寫準確</p>
+
+  <form class="form-card" id="chart-form" novalidate>
+
+    <div class="field-group">
+      <label class="field-label" for="name">姓名（選填）</label>
+      <input class="field-input" type="text" id="name" placeholder="可不填" autocomplete="off">
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">出生日期</label>
+      <div class="date-row">
+        <div class="select-wrap">
+          <select class="field-select" id="year" required>
+            <option value="" disabled selected>西元年</option>
+          </select>
+        </div>
+        <div class="select-wrap">
+          <select class="field-select" id="month" required>
+            <option value="" disabled selected>月</option>
+          </select>
+        </div>
+        <div class="select-wrap">
+          <select class="field-select" id="day" required>
+            <option value="" disabled selected>日</option>
+          </select>
+        </div>
+      </div>
+      <p class="field-error" id="date-error">請選擇完整的出生日期</p>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="hour">出生時辰</label>
+      <div class="select-wrap">
+        <select class="field-select" id="hour" required>
+          <option value="" disabled selected>選擇時辰</option>
+          <option value="子">子時（23:00 – 00:59）</option>
+          <option value="丑">丑時（01:00 – 02:59）</option>
+          <option value="寅">寅時（03:00 – 04:59）</option>
+          <option value="卯">卯時（05:00 – 06:59）</option>
+          <option value="辰">辰時（07:00 – 08:59）</option>
+          <option value="巳">巳時（09:00 – 10:59）</option>
+          <option value="午">午時（11:00 – 12:59）</option>
+          <option value="未">未時（13:00 – 14:59）</option>
+          <option value="申">申時（15:00 – 16:59）</option>
+          <option value="酉">酉時（17:00 – 18:59）</option>
+          <option value="戌">戌時（19:00 – 20:59）</option>
+          <option value="亥">亥時（21:00 – 22:59）</option>
+        </select>
+      </div>
+      <p class="field-error" id="hour-error">請選擇出生時辰</p>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">性別</label>
+      <div class="gender-row">
+        <button type="button" class="gender-btn" data-gender="male">男</button>
+        <button type="button" class="gender-btn" data-gender="female">女</button>
+      </div>
+      <p class="field-error" id="gender-error">請選擇性別</p>
+    </div>
+
+    <div class="form-divider"></div>
+
+    <button type="submit" class="submit-btn">查看我的命盤</button>
+
+    <p class="form-hint">命盤僅供靈性參考，不構成任何建議</p>
+
+  </form>
+
+</div>
+
+<div class="hz-deco" id="hz-deco">排盤中</div>
+
+<script>
+// ── Canvas wave ──
+const cvs = document.getElementById('wave-canvas');
+const ctx = cvs.getContext('2d');
+let ph = 0, tgtHz = 350, curHz = 350;
+function resize(){ cvs.width=window.innerWidth; cvs.height=window.innerHeight; }
+window.addEventListener('resize', resize); resize();
+function lerpC(a,b,t){
+  const ah=parseInt(a.slice(1),16),bh=parseInt(b.slice(1),16);
+  const ar=(ah>>16)&255,ag=(ah>>8)&255,ab=ah&255;
+  const br=(bh>>16)&255,bg=(bh>>8)&255,bb=bh&255;
+  return `rgb(${Math.round(ar+(br-ar)*t)},${Math.round(ag+(bg-ag)*t)},${Math.round(ab+(bb-ab)*t)})`;
+}
+function draw(){
+  curHz+=(tgtHz-curHz)*.015;
+  const t=Math.max(0,Math.min(1,(curHz-20)/980));
+  const spd=.3+t*2.5,amp=40+t*60,frq=.003+t*.009;
+  ph+=spd*.012;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  const c1=lerpC('#1a0050','#3a10a0',t),c2=lerpC('#001040','#103080',t);
+  for(let l=0;l<3;l++){
+    const lp=ph+(l*Math.PI*.6),la=amp*(1-l*.25),al=.55-l*.13;
+    ctx.beginPath(); ctx.moveTo(0,cvs.height*.5);
+    for(let x=0;x<=cvs.width;x+=4){
+      const y=cvs.height*.5+Math.sin(x*frq+lp)*la+Math.sin(x*frq*1.8+lp*1.3)*(la*.3);
+      ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle=l===0?c1:c2; ctx.lineWidth=2-l*.4; ctx.globalAlpha=al; ctx.stroke();
+  }
+  ctx.globalAlpha=1; requestAnimationFrame(draw);
+}
+draw();
+
+// ── Populate selects ──
+const yearSel = document.getElementById('year');
+for(let y=2010; y>=1930; y--){
+  const o = document.createElement('option');
+  o.value = y; o.textContent = y + ' 年';
+  yearSel.appendChild(o);
+}
+
+const monthSel = document.getElementById('month');
+for(let m=1; m<=12; m++){
+  const o = document.createElement('option');
+  o.value = m; o.textContent = m + ' 月';
+  monthSel.appendChild(o);
+}
+
+function populateDays(year, month){
+  const daySel = document.getElementById('day');
+  const prev = daySel.value;
+  daySel.innerHTML = '<option value="" disabled selected>日</option>';
+  const days = new Date(year||2000, month||1, 0).getDate() || 31;
+  for(let d=1; d<=days; d++){
+    const o = document.createElement('option');
+    o.value = d; o.textContent = d + ' 日';
+    if(+prev === d) o.selected = true;
+    daySel.appendChild(o);
+  }
+}
+populateDays();
+
+yearSel.addEventListener('change', () => populateDays(yearSel.value, monthSel.value));
+monthSel.addEventListener('change', () => populateDays(yearSel.value, monthSel.value));
+
+// ── Gender buttons ──
+let selectedGender = '';
+document.querySelectorAll('.gender-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedGender = btn.dataset.gender;
+  });
+});
+
+// ── Simple star mapping (placeholder logic) ──
+function calcStar(year, month, day, hour, gender){
+  // Placeholder: in a real implementation this would use actual Ziwei algorithm
+  const stars = ['紫微','天機','太陽','武曲','天同','廉貞','天府','太陰','貪狼','巨門','天相','天梁','七殺','破軍'];
+  const idx = ((+year + +month + +day) % stars.length + stars.length) % stars.length;
+  return stars[idx];
+}
+
+// ── Form submission ──
+document.getElementById('chart-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  let valid = true;
+
+  const year = yearSel.value;
+  const month = monthSel.value;
+  const day = document.getElementById('day').value;
+  const hour = document.getElementById('hour').value;
+  const name = document.getElementById('name').value.trim();
+
+  document.getElementById('date-error').style.display = (!year || !month || !day) ? 'block' : 'none';
+  if(!year || !month || !day) valid = false;
+
+  document.getElementById('hour-error').style.display = !hour ? 'block' : 'none';
+  if(!hour) valid = false;
+
+  document.getElementById('gender-error').style.display = !selectedGender ? 'block' : 'none';
+  if(!selectedGender) valid = false;
+
+  if(!valid) return;
+
+  const star = calcStar(year, month, day, hour, selectedGender);
+  const params = new URLSearchParams({
+    star,
+    name: name || '命盤持有者',
+    year, month, day, hour,
+    gender: selectedGender
+  });
+
+  window.location.href = 'result-free.html?' + params.toString();
+});
+</script>
+</body>
+</html>

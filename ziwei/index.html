@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>你的命盤是一面鏡子｜紫微斗數 × 莫子觀點</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#07070f;
+  color:#e8e8f0;
+  font-family:'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+#wave-canvas {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  z-index:0; pointer-events:none; opacity:.25;
+}
+
+.page {
+  position:relative; z-index:1;
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:60px 20px 80px;
+}
+
+.top-badge {
+  font-size:11px; letter-spacing:3px;
+  color:rgba(167,139,250,.8);
+  text-transform:uppercase; margin-bottom:24px;
+}
+
+.main-title {
+  font-size:clamp(30px,7vw,56px);
+  font-weight:800; text-align:center;
+  line-height:1.2; margin-bottom:14px;
+  background:linear-gradient(135deg,#fff 0%,#c4b5fd 50%,#818cf8 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+.main-sub {
+  font-size:14px; color:rgba(255,255,255,.42);
+  text-align:center; line-height:1.75;
+  max-width:340px; margin-bottom:56px;
+}
+
+/* ── hero card ── */
+.hero-card {
+  width:100%; max-width:480px;
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(124,58,237,.25);
+  border-radius:24px;
+  padding:40px 32px 36px;
+  text-align:center;
+  margin-bottom:32px;
+}
+
+.star-deco {
+  font-size:52px; margin-bottom:20px;
+  display:block;
+}
+
+.hero-desc {
+  font-size:15px; color:rgba(255,255,255,.55);
+  line-height:1.85; margin-bottom:32px;
+}
+.hero-desc strong {
+  color:rgba(196,181,253,.9);
+}
+
+/* ── CTA button ── */
+.cta-btn {
+  display:inline-block;
+  width:100%;
+  padding:18px 32px;
+  background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%);
+  color:#fff;
+  font-size:18px; font-weight:700;
+  border-radius:16px;
+  text-decoration:none;
+  text-align:center;
+  letter-spacing:1px;
+  transition:transform .2s, box-shadow .2s;
+  box-shadow:0 4px 30px rgba(124,58,237,.4);
+  border:none; cursor:pointer;
+}
+.cta-btn:hover {
+  transform:translateY(-2px);
+  box-shadow:0 8px 40px rgba(124,58,237,.6);
+}
+.cta-btn:active { transform:translateY(0); }
+
+/* ── pricing note ── */
+.pricing-row {
+  display:flex; gap:12px; align-items:stretch;
+  width:100%; max-width:480px;
+  margin-bottom:0;
+}
+
+.pricing-card {
+  flex:1;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:18px 16px;
+  text-align:center;
+}
+.pricing-card.highlight {
+  border-color:rgba(124,58,237,.4);
+  background:rgba(124,58,237,.08);
+}
+
+.pricing-label {
+  font-size:11px; letter-spacing:2px;
+  color:rgba(255,255,255,.3); margin-bottom:8px;
+  text-transform:uppercase;
+}
+.pricing-card.highlight .pricing-label {
+  color:rgba(196,181,253,.7);
+}
+
+.pricing-title {
+  font-size:14px; font-weight:600;
+  color:rgba(255,255,255,.7); margin-bottom:6px;
+}
+
+.pricing-price {
+  font-size:20px; font-weight:800;
+  color:#c4b5fd;
+}
+.pricing-free {
+  font-size:20px; font-weight:800;
+  color:rgba(255,255,255,.4);
+}
+
+.pricing-items {
+  font-size:12px; color:rgba(255,255,255,.35);
+  line-height:1.8; margin-top:8px;
+}
+.pricing-card.highlight .pricing-items {
+  color:rgba(196,181,253,.5);
+}
+
+/* ── bottom note ── */
+.bottom-note {
+  margin-top:36px; text-align:center;
+  font-size:12px; color:rgba(255,255,255,.2);
+  line-height:1.8;
+}
+
+.hz-deco {
+  position:fixed; bottom:32px; right:28px;
+  font-size:11px; letter-spacing:2px;
+  color:rgba(255,255,255,.1);
+  pointer-events:none; z-index:0;
+}
+</style>
+</head>
+<body>
+
+<canvas id="wave-canvas"></canvas>
+
+<div class="page">
+
+  <p class="top-badge">紫微斗數 × 莫子觀點</p>
+
+  <h1 class="main-title">你的命盤<br>是一面鏡子</h1>
+  <p class="main-sub">看見你的潛意識慣性<br>不是預測命運，而是認識自己</p>
+
+  <div class="hero-card">
+    <span class="star-deco">✦</span>
+    <p class="hero-desc">
+      紫微斗數是一套從出生時間解碼<strong>靈魂藍圖</strong>的系統。<br><br>
+      命盤不是鎖鏈，是一面鏡子——<br>
+      照見你反覆出現的慣性模式，<br>
+      讓你有機會選擇不同的回應。
+    </p>
+    <a class="cta-btn" href="chart.html">開始排盤</a>
+  </div>
+
+  <div class="pricing-row">
+    <div class="pricing-card">
+      <p class="pricing-label">免費版</p>
+      <p class="pricing-title">命宮解讀</p>
+      <p class="pricing-free">FREE</p>
+      <p class="pricing-items">命宮主星<br>潛意識慣性解讀</p>
+    </div>
+    <div class="pricing-card highlight">
+      <p class="pricing-label">完整版</p>
+      <p class="pricing-title">完整 12 宮命盤</p>
+      <p class="pricing-price">NT$199</p>
+      <p class="pricing-items">12 宮逐一解讀<br>莫子觀點深度詮釋</p>
+    </div>
+  </div>
+
+  <p class="bottom-note">命盤資料僅用於當次解讀，不會儲存個人資訊</p>
+
+</div>
+
+<div class="hz-deco" id="hz-deco">紫微</div>
+
+<script>
+const cvs = document.getElementById('wave-canvas');
+const ctx = cvs.getContext('2d');
+let tgtHz = 250, curHz = 250, ph = 0;
+
+function resize(){ cvs.width=window.innerWidth; cvs.height=window.innerHeight; }
+window.addEventListener('resize', resize); resize();
+
+function lerpC(a,b,t){
+  const ah=parseInt(a.slice(1),16), bh=parseInt(b.slice(1),16);
+  const ar=(ah>>16)&255, ag=(ah>>8)&255, ab=ah&255;
+  const br=(bh>>16)&255, bg=(bh>>8)&255, bb=bh&255;
+  return `rgb(${Math.round(ar+(br-ar)*t)},${Math.round(ag+(bg-ag)*t)},${Math.round(ab+(bb-ab)*t)})`;
+}
+
+function draw(){
+  curHz += (tgtHz - curHz) * .015;
+  const t = Math.max(0, Math.min(1, (curHz-20)/980));
+  const spd=.3+t*2.5, amp=40+t*60, frq=.003+t*.009;
+  ph += spd * .012;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  const c1=lerpC('#1a0050','#3a10a0',t), c2=lerpC('#001040','#103080',t);
+  for(let l=0;l<3;l++){
+    const lp=ph+(l*Math.PI*.6), la=amp*(1-l*.25), al=.55-l*.13;
+    ctx.beginPath(); ctx.moveTo(0, cvs.height*.5);
+    for(let x=0;x<=cvs.width;x+=4){
+      const y=cvs.height*.5 + Math.sin(x*frq+lp)*la + Math.sin(x*frq*1.8+lp*1.3)*(la*.3);
+      ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle=l===0?c1:c2; ctx.lineWidth=2-l*.4; ctx.globalAlpha=al; ctx.stroke();
+  }
+  ctx.globalAlpha=1; requestAnimationFrame(draw);
+}
+draw();
+
+const stars = ['紫微','天機','太陽','武曲','天同','廉貞','天府','太陰','貪狼','巨門','天相','天梁','七殺','破軍'];
+let si = 0;
+const decoEl = document.getElementById('hz-deco');
+setInterval(()=>{ si=(si+1)%stars.length; decoEl.textContent=stars[si]; }, 1800);
+</script>
+</body>
+</html>

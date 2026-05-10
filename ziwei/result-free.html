@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>你的命宮主星｜紫微斗數</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#07070f;
+  color:#e8e8f0;
+  font-family:'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  padding-bottom:160px;
+}
+
+#wave-canvas {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  z-index:0; pointer-events:none; opacity:.2;
+}
+
+.page {
+  position:relative; z-index:1;
+  display:flex; flex-direction:column;
+  align-items:center;
+  padding:48px 20px 40px;
+}
+
+/* ── back ── */
+.back-link {
+  align-self:flex-start; max-width:480px; width:100%;
+  margin-bottom:24px;
+}
+.back-link a {
+  font-size:13px; color:rgba(167,139,250,.6);
+  text-decoration:none;
+  transition:color .2s;
+}
+.back-link a:hover { color:rgba(167,139,250,1); }
+
+/* ── star hero ── */
+.star-hero {
+  width:100%; max-width:480px;
+  background:rgba(124,58,237,.1);
+  border:1px solid rgba(124,58,237,.35);
+  border-radius:24px;
+  padding:40px 28px 36px;
+  text-align:center;
+  margin-bottom:20px;
+  position:relative; overflow:hidden;
+}
+.star-hero::before {
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 0%, rgba(124,58,237,.25) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.greeting {
+  font-size:13px; color:rgba(167,139,250,.6);
+  letter-spacing:2px; margin-bottom:16px;
+}
+
+.star-emoji {
+  font-size:64px; margin-bottom:16px;
+  display:block; line-height:1;
+}
+
+.star-name {
+  font-size:clamp(32px,8vw,52px);
+  font-weight:800;
+  background:linear-gradient(135deg,#fff 0%,#c4b5fd 50%,#818cf8 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:6px;
+}
+
+.star-subtitle {
+  font-size:14px; color:rgba(255,255,255,.35);
+  letter-spacing:1px; margin-bottom:28px;
+}
+
+/* free badge */
+.free-badge {
+  display:inline-block;
+  font-size:11px; letter-spacing:1.5px;
+  padding:4px 12px; border-radius:8px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.3);
+  text-transform:uppercase;
+}
+
+/* ── mirror section ── */
+.section-card {
+  width:100%; max-width:480px;
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:28px 24px;
+  margin-bottom:16px;
+}
+
+.section-label {
+  font-size:11px; letter-spacing:2.5px;
+  color:rgba(167,139,250,.6);
+  text-transform:uppercase; margin-bottom:14px;
+}
+
+.section-title {
+  font-size:18px; font-weight:700;
+  color:rgba(255,255,255,.85); margin-bottom:12px;
+}
+
+.section-body {
+  font-size:14px; color:rgba(255,255,255,.5);
+  line-height:1.85;
+}
+.section-body strong {
+  color:rgba(196,181,253,.8);
+  font-weight:600;
+}
+
+/* traits */
+.traits-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; margin-top:16px;
+}
+.trait-pill {
+  background:rgba(124,58,237,.1);
+  border:1px solid rgba(124,58,237,.25);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:13px; color:rgba(196,181,253,.8);
+  text-align:center;
+}
+
+/* locked */
+.locked-section {
+  width:100%; max-width:480px;
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:20px;
+  padding:28px 24px;
+  margin-bottom:16px;
+  position:relative;
+  overflow:hidden;
+}
+.locked-section::after {
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(to bottom, transparent 0%, rgba(7,7,15,.9) 70%);
+  pointer-events:none;
+}
+.locked-content {
+  filter:blur(3px); opacity:.3; user-select:none;
+}
+.lock-overlay {
+  position:absolute; bottom:20px; left:50%;
+  transform:translateX(-50%);
+  z-index:1; white-space:nowrap;
+  font-size:13px; color:rgba(255,255,255,.3);
+  letter-spacing:1px;
+}
+
+/* ── unlock CTA ── */
+.unlock-btn {
+  display:block; width:100%; max-width:480px;
+  padding:18px;
+  background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%);
+  color:#fff;
+  font-size:16px; font-weight:700;
+  border-radius:16px;
+  text-decoration:none; text-align:center;
+  letter-spacing:.5px;
+  transition:transform .2s, box-shadow .2s;
+  box-shadow:0 4px 28px rgba(124,58,237,.45);
+  margin-bottom:10px;
+}
+.unlock-btn:hover {
+  transform:translateY(-2px);
+  box-shadow:0 8px 36px rgba(124,58,237,.65);
+}
+.unlock-sub {
+  font-size:12px; color:rgba(255,255,255,.2);
+  text-align:center; max-width:480px; width:100%;
+  margin-bottom:40px;
+}
+
+/* ── sticky bottom CTA ── */
+.bottom-cta {
+  position:fixed; bottom:0; left:0; right:0;
+  z-index:10;
+  background:rgba(7,7,15,.92);
+  backdrop-filter:blur(16px);
+  border-top:1px solid rgba(255,255,255,.08);
+  padding:16px 20px 28px;
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+}
+
+.cta-label {
+  font-size:11px; letter-spacing:2px;
+  color:rgba(167,139,250,.5); text-transform:uppercase;
+  margin-bottom:4px;
+}
+
+.cta-courses {
+  display:flex; gap:10px; width:100%; max-width:480px;
+}
+
+.course-btn {
+  flex:1;
+  padding:12px 10px;
+  border-radius:12px;
+  text-decoration:none; text-align:center;
+  font-size:13px; font-weight:600;
+  transition:all .2s;
+}
+.course-btn-a {
+  background:rgba(124,58,237,.2);
+  border:1px solid rgba(124,58,237,.4);
+  color:#c4b5fd;
+}
+.course-btn-a:hover {
+  background:rgba(124,58,237,.35);
+  border-color:rgba(124,58,237,.7);
+}
+.course-btn-b {
+  background:rgba(99,102,241,.15);
+  border:1px solid rgba(99,102,241,.35);
+  color:#a5b4fc;
+}
+.course-btn-b:hover {
+  background:rgba(99,102,241,.3);
+  border-color:rgba(99,102,241,.6);
+}
+
+.hz-deco {
+  position:fixed; bottom:120px; right:20px;
+  font-size:11px; letter-spacing:2px;
+  color:rgba(255,255,255,.08);
+  pointer-events:none; z-index:0;
+}
+</style>
+</head>
+<body>
+
+<canvas id="wave-canvas"></canvas>
+
+<div class="page">
+
+  <div class="back-link"><a href="chart.html">← 重新輸入</a></div>
+
+  <!-- Star Hero -->
+  <div class="star-hero">
+    <p class="greeting" id="greeting">你的命宮主星</p>
+    <span class="star-emoji" id="star-emoji">✦</span>
+    <h1 class="star-name" id="star-name">紫微星</h1>
+    <p class="star-subtitle" id="star-subtitle">命宮 · 靈魂藍圖核心</p>
+    <span class="free-badge">免費解讀</span>
+  </div>
+
+  <!-- Mirror Section -->
+  <div class="section-card">
+    <p class="section-label">鏡子說的話</p>
+    <h2 class="section-title" id="mirror-title">你習慣站在舞台中央</h2>
+    <p class="section-body" id="mirror-body">
+      命宮主星是你潛意識最底層的<strong>驅動程式</strong>。<br><br>
+      它不是你「應該成為」的樣子，而是你在無意識狀態下，<strong>本能反應的模式</strong>。<br><br>
+      這面鏡子照出的，是你最熟悉卻也最看不見自己的那一面。
+    </p>
+    <div class="traits-grid" id="traits-grid">
+      <div class="trait-pill">天生領導力</div>
+      <div class="trait-pill">渴望被看見</div>
+      <div class="trait-pill">強烈自尊心</div>
+      <div class="trait-pill">孤獨感</div>
+    </div>
+  </div>
+
+  <!-- Locked: 12 宮預覽 -->
+  <div class="locked-section">
+    <p class="section-label">完整 12 宮命盤</p>
+    <div class="locked-content">
+      <p class="section-title">財帛宮 · 事業宮 · 夫妻宮…</p>
+      <p class="section-body">
+        你的財帛宮顯示出對金錢有天生的敏感度，容易在事業的第一階段積累資源，但若不處理某個深層信念…<br><br>
+        夫妻宮的配置說明你在親密關係中習慣扮演…
+      </p>
+    </div>
+    <div class="lock-overlay">解鎖查看完整 12 宮</div>
+  </div>
+
+  <!-- Unlock Button -->
+  <a class="unlock-btn" href="#">查看完整 12 宮命盤 &nbsp;·&nbsp; NT$199</a>
+  <p class="unlock-sub">一次付款，永久查看 · 安全付款</p>
+
+</div>
+
+<!-- Sticky Bottom CTA -->
+<div class="bottom-cta">
+  <p class="cta-label">莫子課程推薦</p>
+  <div class="cta-courses">
+    <a class="course-btn course-btn-a" href="#">靈魂藍圖<br>工作坊</a>
+    <a class="course-btn course-btn-b" href="#">雙生紫焰<br>完整課程</a>
+  </div>
+</div>
+
+<div class="hz-deco" id="hz-deco">命宮</div>
+
+<script>
+// ── Canvas wave ──
+const cvs = document.getElementById('wave-canvas');
+const ctx = cvs.getContext('2d');
+let ph = 0, curHz = 400;
+function resize(){ cvs.width=window.innerWidth; cvs.height=window.innerHeight; }
+window.addEventListener('resize', resize); resize();
+function lerpC(a,b,t){
+  const ah=parseInt(a.slice(1),16),bh=parseInt(b.slice(1),16);
+  const ar=(ah>>16)&255,ag=(ah>>8)&255,ab=ah&255;
+  const br=(bh>>16)&255,bg=(bh>>8)&255,bb=bh&255;
+  return `rgb(${Math.round(ar+(br-ar)*t)},${Math.round(ag+(bg-ag)*t)},${Math.round(ab+(bb-ab)*t)})`;
+}
+function draw(){
+  const t=Math.max(0,Math.min(1,(curHz-20)/980));
+  const spd=.3+t*2.5,amp=40+t*60,frq=.003+t*.009;
+  ph+=spd*.012;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  const c1=lerpC('#1a0050','#3a10a0',t),c2=lerpC('#001040','#103080',t);
+  for(let l=0;l<3;l++){
+    const lp=ph+(l*Math.PI*.6),la=amp*(1-l*.25),al=.55-l*.13;
+    ctx.beginPath(); ctx.moveTo(0,cvs.height*.5);
+    for(let x=0;x<=cvs.width;x+=4){
+      const y=cvs.height*.5+Math.sin(x*frq+lp)*la+Math.sin(x*frq*1.8+lp*1.3)*(la*.3);
+      ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle=l===0?c1:c2; ctx.lineWidth=2-l*.4; ctx.globalAlpha=al; ctx.stroke();
+  }
+  ctx.globalAlpha=1; requestAnimationFrame(draw);
+}
+draw();
+
+// ── Star data ──
+const starData = {
+  '紫微': {
+    emoji: '👑', subtitle: '命宮 · 帝星',
+    mirrorTitle: '你習慣站在舞台中央',
+    mirrorBody: '命宮主星紫微是你潛意識最底層的<strong>驅動程式</strong>。<br><br>你本能地渴望被看見、被尊重。這不是自大，而是靈魂深處對<strong>意義感</strong>的渴求——你需要感覺自己的存在有重量。<br><br>這面鏡子照出的，是你在關係中習慣掌控、在壓力下趨向孤立的那一面。',
+    traits: ['天生領導力','渴望被看見','強烈自尊心','孤獨感']
+  },
+  '天機': {
+    emoji: '⚙️', subtitle: '命宮 · 謀略星',
+    mirrorTitle: '你的頭腦從不停歇',
+    mirrorBody: '天機坐命的你，本能地在每件事背後尋找<strong>規律與邏輯</strong>。<br><br>你擅長分析、變通，卻容易因為看見太多可能性而猶豫不決。<strong>過度思考</strong>是你最熟悉的模式。<br><br>這面鏡子照出的，是你用「再想清楚一點」迴避行動的慣性。',
+    traits: ['分析思維','適應力強','多變不穩','想太多']
+  },
+  '太陽': {
+    emoji: '☀️', subtitle: '命宮 · 官祿主',
+    mirrorTitle: '你需要在付出中找到自己',
+    mirrorBody: '太陽坐命的你，本能地<strong>想要發光、給予</strong>。<br><br>你的存在感來自於「對別人有用」。這是天賦，也是陷阱——當沒有人需要你，你容易感到空洞。<br><br>這面鏡子照出的，是你用付出換取認可的無意識交換。',
+    traits: ['慷慨給予','社交魅力','過度燃燒','需要認可']
+  },
+  '武曲': {
+    emoji: '⚔️', subtitle: '命宮 · 財帛主',
+    mirrorTitle: '你用行動和結果定義自己的價值',
+    mirrorBody: '武曲坐命的你，本能地相信<strong>行動才是真實的</strong>。<br><br>你務實、果斷、有執行力，但情感表達對你來說往往是陌生領域。你用「把事情做好」替代了「把感受說清楚」。<br><br>這面鏡子照出的，是你在親密關係中習慣用效率取代溫柔的慣性。',
+    traits: ['執行力強','財務敏感','情感壓抑','剛硬孤獨']
+  },
+  '天同': {
+    emoji: '🌊', subtitle: '命宮 · 福德主',
+    mirrorTitle: '你渴望和諧，卻常常失去自己',
+    mirrorBody: '天同坐命的你，本能地趨向<strong>平靜與無衝突</strong>。<br><br>你溫和、隨和，能在混亂中保持平衡，但這份「不想起衝突」背後，常常是你把自己的需求默默壓下去。<br><br>這面鏡子照出的，是你以「沒關係」為名的自我消融。',
+    traits: ['溫和隨和','享樂主義','迴避衝突','消極依賴']
+  },
+  '廉貞': {
+    emoji: '🔥', subtitle: '命宮 · 次桃花',
+    mirrorTitle: '你的熱情是劍，也是傷',
+    mirrorBody: '廉貞坐命的你，本能地<strong>追求熱烈與純粹</strong>。<br><br>你有強烈的是非感，對自己在乎的事全力以赴，對不在乎的事毫無興趣。這份強度讓你魅力十足，也讓關係容易走向極端。<br><br>這面鏡子照出的，是你在壓力下的衝動與自我毀滅傾向。',
+    traits: ['熱情強烈','是非分明','衝動冒險','極端思維']
+  },
+  '天府': {
+    emoji: '🏛️', subtitle: '命宮 · 南斗主',
+    mirrorTitle: '你是眾人的容器，卻常常忘了填滿自己',
+    mirrorBody: '天府坐命的你，本能地扮演<strong>穩定者與保護者</strong>。<br><br>你是家庭和團隊的基石，有天然的收藏與保守傾向。這份穩健是天賦，但有時你過於謹慎，錯失了冒險帶來的成長。<br><br>這面鏡子照出的，是你用「維持現狀」作為安全感的替代品。',
+    traits: ['穩重可靠','保護慾強','過度謹慎','守舊抗變']
+  },
+  '太陰': {
+    emoji: '🌙', subtitle: '命宮 · 財星',
+    mirrorTitle: '你的世界住在內心深處',
+    mirrorBody: '太陰坐命的你，本能地向內生長。你敏感、細膩，能感知別人感知不到的細節。<br><br>這份<strong>深層的感受力</strong>是你最大的天賦，也讓你容易被外界能量影響，需要比別人更多的獨處時間來整合。<br><br>這面鏡子照出的，是你在人群中假裝沒事、回家才崩潰的模式。',
+    traits: ['直覺敏銳','情感豐富','容易受傷','需要獨處']
+  },
+  '貪狼': {
+    emoji: '🐺', subtitle: '命宮 · 桃花主',
+    mirrorTitle: '你同時渴望一切，卻不確定自己真正要什麼',
+    mirrorBody: '貪狼坐命的你，本能地被<strong>多元與可能性</strong>吸引。<br><br>你多才多藝、魅力四射，在任何環境都能找到樂趣。但這份廣度背後，有時候是深度的缺失——你跳向下一個目標，可能是因為害怕真正的深入。<br><br>這面鏡子照出的，是你用「探索」迴避承諾的模式。',
+    traits: ['魅力四射','多才多藝','欲望強烈','難以深入']
+  },
+  '巨門': {
+    emoji: '💬', subtitle: '命宮 · 暗曜',
+    mirrorTitle: '你的嘴是你最強的武器，也是最深的傷口',
+    mirrorBody: '巨門坐命的你，本能地追求<strong>真相與辯證</strong>。<br><br>你口才犀利、思維深邃，能看見別人忽略的問題。但這份「直說」的衝動，有時讓你在人際關係中留下不必要的傷痕。<br><br>這面鏡子照出的，是你用「我只是說實話」作為傷人的藉口。',
+    traits: ['思辨能力','口才犀利','懷疑心重','是非糾纏']
+  },
+  '天相': {
+    emoji: '⚖️', subtitle: '命宮 · 印星',
+    mirrorTitle: '你是最好的支持者，但誰在支持你？',
+    mirrorBody: '天相坐命的你，本能地扮演<strong>協調者與輔助者</strong>。<br><br>你有天然的公正感，善於在衝突中找到平衡點。但你的能量常常消耗在幫助別人上，而忘了問自己真正想要什麼。<br><br>這面鏡子照出的，是你把「成全別人」當作逃避自我選擇的出口。',
+    traits: ['公正協調','樂於助人','犧牲自我','依附他人']
+  },
+  '天梁': {
+    emoji: '🌿', subtitle: '命宮 · 蔭星',
+    mirrorTitle: '你用智慧保護別人，卻不願承認自己也需要被保護',
+    mirrorBody: '天梁坐命的你，本能地承擔<strong>老師、長者、守護者</strong>的角色。<br><br>你有穿透表象看見本質的能力，也有強烈的責任感。但這份「我來扛」的姿態，有時讓你無法接受自己的脆弱。<br><br>這面鏡子照出的，是你把「助人」當作防衛自己不被傷害的盔甲。',
+    traits: ['智慧深遠','責任感強','好為人師','難以示弱']
+  },
+  '七殺': {
+    emoji: '⚡', subtitle: '命宮 · 將星',
+    mirrorTitle: '你為自由而生，卻常常囚禁自己',
+    mirrorBody: '七殺坐命的你，本能地<strong>抵抗限制、追求突破</strong>。<br><br>你有強烈的革新能量，不服輸、敢冒險，在逆境中反而能爆發出驚人的力量。但這份「不服管」的衝動，有時讓你在穩定的關係中製造不必要的動盪。<br><br>這面鏡子照出的，是你用衝突確認自己還活著的模式。',
+    traits: ['衝勁十足','逆境爆發','反骨不服','破壞穩定']
+  },
+  '破軍': {
+    emoji: '💫', subtitle: '命宮 · 耗星',
+    mirrorTitle: '你是宇宙的破壞者，也是重生者',
+    mirrorBody: '破軍坐命的你，本能地走在<strong>打破舊結構、創造新秩序</strong>的道路上。<br><br>你的人生常常經歷大起大落，但每次崩塌都是為了更深的重建。這份「不破不立」的能量讓你獨一無二，也讓身邊的人難以捉摸。<br><br>這面鏡子照出的，是你對「失去」的恐懼如何驅動著你不停破壞自己的穩定。',
+    traits: ['創造力強','耗散能量','不破不立','極端波動']
+  }
+};
+
+// ── Read URL params & render ──
+const params = new URLSearchParams(window.location.search);
+const starName = params.get('star') || '紫微';
+const personName = params.get('name') || '命盤持有者';
+
+const data = starData[starName] || starData['紫微'];
+
+document.getElementById('greeting').textContent = personName + ' · 你的命宮主星';
+document.getElementById('star-emoji').textContent = data.emoji;
+document.getElementById('star-name').textContent = starName + '星';
+document.getElementById('star-subtitle').textContent = data.subtitle;
+document.getElementById('mirror-title').textContent = data.mirrorTitle;
+document.getElementById('mirror-body').innerHTML = data.mirrorBody;
+document.title = starName + '星命宮｜紫微斗數';
+
+const traitsGrid = document.getElementById('traits-grid');
+traitsGrid.innerHTML = data.traits.map(t => `<div class="trait-pill">${t}</div>`).join('');
+
+document.getElementById('hz-deco').textContent = starName + '星';
+</script>
+</body>
+</html>
