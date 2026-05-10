@@ -265,18 +265,9 @@ body {
   <!-- Mirror Section -->
   <div class="section-card">
     <p class="section-label">鏡子說的話</p>
-    <h2 class="section-title" id="mirror-title">你習慣站在舞台中央</h2>
-    <p class="section-body" id="mirror-body">
-      命宮主星是你潛意識最底層的<strong>驅動程式</strong>。<br><br>
-      它不是你「應該成為」的樣子，而是你在無意識狀態下，<strong>本能反應的模式</strong>。<br><br>
-      這面鏡子照出的，是你最熟悉卻也最看不見自己的那一面。
-    </p>
-    <div class="traits-grid" id="traits-grid">
-      <div class="trait-pill">天生領導力</div>
-      <div class="trait-pill">渴望被看見</div>
-      <div class="trait-pill">強烈自尊心</div>
-      <div class="trait-pill">孤獨感</div>
-    </div>
+    <div class="section-body" id="mirror-layer1" style="white-space:pre-line;line-height:1.85;margin-bottom:20px;"></div>
+    <div class="section-body" id="mirror-layer2" style="white-space:pre-line;line-height:1.85;padding:16px 18px;background:rgba(124,58,237,.08);border-left:3px solid rgba(167,139,250,.4);border-radius:0 12px 12px 0;font-size:14px;color:rgba(255,255,255,.75);"></div>
+    <div class="traits-grid" id="traits-grid" style="margin-top:20px;"></div>
   </div>
 
   <!-- Locked: 12 宮預覽 -->
@@ -299,16 +290,14 @@ body {
 </div>
 
 <!-- Sticky Bottom CTA -->
-<div class="bottom-cta">
+<div class="bottom-cta" id="bottom-cta">
   <p class="cta-label">莫子課程推薦</p>
-  <div class="cta-courses">
-    <a class="course-btn course-btn-a" href="#">靈魂藍圖<br>工作坊</a>
-    <a class="course-btn course-btn-b" href="#">雙生紫焰<br>完整課程</a>
-  </div>
+  <div class="cta-courses" id="cta-courses"></div>
 </div>
 
 <div class="hz-deco" id="hz-deco">命宮</div>
 
+<script src="stars-data.js"></script>
 <script>
 // ── Canvas wave ──
 const cvs = document.getElementById('wave-canvas');
@@ -434,18 +423,51 @@ const params = new URLSearchParams(window.location.search);
 const starName = params.get('star') || '紫微';
 const personName = params.get('name') || '命盤持有者';
 
-const data = starData[starName] || starData['紫微'];
+// 從 stars-data.js 取資料，找不到就用空宮
+const data = STARS_DATA[starName] || EMPTY_PALACE;
 
-document.getElementById('greeting').textContent = personName + ' · 你的命宮主星';
+// Hero
+document.getElementById('greeting').textContent = personName + '，你的命宮主星';
 document.getElementById('star-emoji').textContent = data.emoji;
 document.getElementById('star-name').textContent = starName + '星';
-document.getElementById('star-subtitle').textContent = data.subtitle;
-document.getElementById('mirror-title').textContent = data.mirrorTitle;
-document.getElementById('mirror-body').innerHTML = data.mirrorBody;
-document.title = starName + '星命宮｜紫微斗數';
+document.getElementById('star-subtitle').textContent = `命宮 · ${data.alias}`;
+document.title = starName + '星坐命｜紫微斗數 × 莫子觀點';
 
-const traitsGrid = document.getElementById('traits-grid');
-traitsGrid.innerHTML = data.traits.map(t => `<div class="trait-pill">${t}</div>`).join('');
+// 鏡子兩層
+document.getElementById('mirror-layer1').textContent = data.mirror.layer1;
+document.getElementById('mirror-layer2').textContent = data.mirror.layer2;
+
+// 特質標籤
+document.getElementById('traits-grid').innerHTML =
+  data.tags.map(t => `<div class="trait-pill">${t}</div>`).join('');
+
+// 波形顏色跟著主星
+curHz = 350;
+
+// 解鎖按鈕帶入所有參數（付費頁需要）
+const unlockBtn = document.querySelector('.unlock-btn');
+if(unlockBtn){
+  const allParams = new URLSearchParams(window.location.search);
+  unlockBtn.href = 'result-paid.html?' + allParams.toString();
+}
+
+// CTA 模組（從 CTA_CONFIG 動態渲染，inactive 的不顯示）
+const ctaCourses = document.getElementById('cta-courses');
+const activeCTAs = [CTA_CONFIG.primary, CTA_CONFIG.secondary].filter(c => c.active);
+
+if(activeCTAs.length === 0){
+  document.getElementById('bottom-cta').style.display = 'none';
+} else {
+  const btnClasses = ['course-btn-a', 'course-btn-b'];
+  ctaCourses.innerHTML = activeCTAs.map((c, i) => {
+    const couponHtml = c.coupon
+      ? `<span style="display:block;font-size:10px;opacity:.7;margin-top:2px;">優惠碼 ${c.coupon.code}</span>`
+      : '';
+    return `<a class="course-btn ${btnClasses[i]||'course-btn-b'}" href="${c.url}" target="_blank" rel="noopener">
+      ${c.title}${couponHtml}
+    </a>`;
+  }).join('');
+}
 
 document.getElementById('hz-deco').textContent = starName + '星';
 </script>

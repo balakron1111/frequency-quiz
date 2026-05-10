@@ -347,16 +347,34 @@ document.querySelectorAll('.gender-btn').forEach(btn => {
   });
 });
 
-// ── Simple star mapping (placeholder logic) ──
-function calcStar(year, month, day, hour, gender){
-  // Placeholder: in a real implementation this would use actual Ziwei algorithm
-  const stars = ['紫微','天機','太陽','武曲','天同','廉貞','天府','太陰','貪狼','巨門','天相','天梁','七殺','破軍'];
-  const idx = ((+year + +month + +day) % stars.length + stars.length) % stars.length;
-  return stars[idx];
+// ── 時辰 → iztro timeIndex 對照 ──
+const HOUR_INDEX = { 子:0,丑:1,寅:2,卯:3,辰:4,巳:5,午:6,未:7,申:8,酉:9,戌:10,亥:11 };
+
+// ── 用 iztro 算命宮主星 ──
+async function calcStar(year, month, day, hour, gender){
+  try {
+    const { astro } = await import('https://esm.sh/iztro@2.4.0');
+    const dateStr = `${year}/${month}/${day}`;
+    const timeIdx = HOUR_INDEX[hour] ?? 0;
+    const g = (gender === 'male') ? '男' : '女';
+    const astrolabe = astro.bySolar(dateStr, timeIdx, g, true, 'zh-TW');
+    const mingPalace = astrolabe.palace('命宮');
+    // 取命宮第一顆主星；空宮則回傳空字串
+    const starName = mingPalace?.majorStars?.find(s => s.type === 'major')?.name
+                  || mingPalace?.majorStars?.[0]?.name
+                  || '';
+    // 對照我們的資料鍵名（iztro 可能回傳全名如「紫微星」，去掉「星」字）
+    return starName.replace('星','');
+  } catch(err) {
+    console.error('iztro error:', err);
+    // fallback：簡易算法避免白屏
+    const stars = ['紫微','天機','太陽','武曲','天同','廉貞','天府','太陰','貪狼','巨門','天相','天梁','七殺','破軍'];
+    return stars[((+year + +month + +day) % stars.length + stars.length) % stars.length];
+  }
 }
 
 // ── Form submission ──
-document.getElementById('chart-form').addEventListener('submit', (e) => {
+document.getElementById('chart-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   let valid = true;
 
@@ -377,7 +395,13 @@ document.getElementById('chart-form').addEventListener('submit', (e) => {
 
   if(!valid) return;
 
-  const star = calcStar(year, month, day, hour, selectedGender);
+  // 顯示載入狀態
+  const submitBtn = document.querySelector('.submit-btn');
+  submitBtn.textContent = '排盤中…';
+  submitBtn.disabled = true;
+
+  const star = await calcStar(year, month, day, hour, selectedGender);
+
   const params = new URLSearchParams({
     star,
     name: name || '命盤持有者',

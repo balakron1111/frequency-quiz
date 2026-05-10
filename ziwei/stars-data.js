@@ -179,16 +179,20 @@ const CTA_CONFIG = {
   primary: {
     title: "2026 人生跳級課",
     subtitle: "系統性看見並改寫你的生命慣性",
-    url: "#",  // ← 填入實際網址
-    active: true,
-    badge: "進行中"
+    url: "#",
+    active: false,  // 暫未開放
+    badge: "即將開放"
   },
   secondary: {
     title: "終點系統",
     subtitle: "徹底擺脫輪迴的根本路徑",
-    url: "#",  // ← 填入實際網址
+    url: "https://www.ultipoint.com/course/online/A001",
     active: true,
-    badge: "長期開放"
+    badge: "長期開放",
+    coupon: {
+      code: "MOJO77",
+      desc: "輸入優惠碼折抵 NT$10,000"
+    }
   }
 };
 
