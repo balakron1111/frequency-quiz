@@ -810,7 +810,12 @@ async function buildPalaceGrid() {
 
   if (year && month && day && hour && gender) {
     try {
-      const { astro } = await import('https://esm.sh/iztro@2.4.0');
+      // 加 8 秒 timeout，避免 esm.sh 連線慢時整個 grid 卡住不渲染
+      const iztroMod = await Promise.race([
+        import('https://esm.sh/iztro@2.4.0'),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('iztro timeout')), 8000))
+      ]);
+      const { astro } = iztroMod;
       const dateStr = `${year}/${month}/${day}`;
       const timeIdx = HOUR_INDEX[hour] ?? 0;
       const g = gender === 'male' ? '男' : '女';

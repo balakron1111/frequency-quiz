@@ -353,7 +353,11 @@ const HOUR_INDEX = { 子:0,丑:1,寅:2,卯:3,辰:4,巳:5,午:6,未:7,申:8,酉:9
 // ── 用 iztro 算命宮主星 ──
 async function calcStar(year, month, day, hour, gender){
   try {
-    const { astro } = await import('https://esm.sh/iztro@2.4.0');
+    const iztroMod = await Promise.race([
+      import('https://esm.sh/iztro@2.4.0'),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('iztro timeout')), 8000))
+    ]);
+    const { astro } = iztroMod;
     const dateStr = `${year}/${month}/${day}`;
     const timeIdx = HOUR_INDEX[hour] ?? 0;
     const g = (gender === 'male') ? '男' : '女';
