@@ -821,6 +821,11 @@ async function buildPalaceGrid() {
       const g = gender === 'male' ? '男' : '女';
       const astrolabe = astro.bySolar(dateStr, timeIdx, g, true, 'zh-TW');
 
+      // ── DEBUG (暫時) ──
+      const _dbg = astrolabe.palace('命宮');
+      console.log('[iztro debug] 命宮 object:', JSON.stringify(_dbg, null, 2));
+      console.log('[iztro debug] palaces list:', astrolabe.palaces?.map(p => p.name));
+
       // 用星名比對，不依賴 type 欄位（iztro 版本間 type 字串可能不一致）
       const MAIN_STAR_NAMES = new Set(['紫微','天機','太陽','武曲','天同','廉貞',
         '天府','太陰','貪狼','巨門','天相','天梁','七殺','破軍']);
