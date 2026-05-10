@@ -846,15 +846,14 @@ async function buildPalaceGrid() {
         palaceStars[pName] = { stars: mainStars, hua: huaStars, sha: shaStars, zhu: zhuStars };
       }
 
+      // 共用變數：大限和流年都需要
+      const currentYear = new Date().getFullYear();
+      const currentAge = currentYear - parseInt(year);
+      const allPalaceKeys = ['命宮','兄弟宮','夫妻宮','子女宮','財帛宮','疾厄宮',
+                             '遷移宮','交友宮','官祿宮','田宅宮','福德宮','父母宮'];
+
       // ── 大限計算 ──
       try {
-        const currentYear = new Date().getFullYear();
-        const birthYear = parseInt(year);
-        const currentAge = currentYear - birthYear;
-
-        // 逐宮檢查 decadal range
-        const allPalaceKeys = ['命宮','兄弟宮','夫妻宮','子女宮','財帛宮','疾厄宮',
-                               '遷移宮','交友宮','官祿宮','田宅宮','福德宮','父母宮'];
         let decadalInfo = null;
 
         for (const pk of allPalaceKeys) {
@@ -907,7 +906,6 @@ async function buildPalaceGrid() {
 
       // ── 流年計算 ──
       try {
-        const currentYear = new Date().getFullYear();
         // 地支對照：子=0, 丑=1, ..., 亥=11（以西元4年=子年為基準）
         const yearBranches = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
         const currentBranch = yearBranches[((currentYear - 4) % 12 + 12) % 12];
