@@ -821,26 +821,28 @@ async function buildPalaceGrid() {
       const g = gender === 'male' ? '男' : '女';
       const astrolabe = astro.bySolar(dateStr, timeIdx, g, true, 'zh-TW');
 
+      // 用星名比對，不依賴 type 欄位（iztro 版本間 type 字串可能不一致）
+      const MAIN_STAR_NAMES = new Set(['紫微','天機','太陽','武曲','天同','廉貞',
+        '天府','太陰','貪狼','巨門','天相','天梁','七殺','破軍']);
+      const SHA_SET = new Set(['擎羊','陀羅','火星','鈴星','地空','地劫']);
+      const ZHU_SET = new Set(['文昌','文曲','左輔','右弼','天魁','天鉞','祿存','天馬']);
+
       for (const pName of PALACE_ORDER) {
         const iztroKey = IZTRO_NAME[pName] || pName;
         const palace = astrolabe.palace(iztroKey);
-        const mainStars = (palace?.majorStars || [])
-          .filter(s => s.type === 'major')
-          .map(s => s.name.replace('星',''));
-        const allStars = [
+        // 取所有星（majorStars + minorStars），用名稱比對主星
+        const allPalaceStars = [
           ...(palace?.majorStars || []),
           ...(palace?.minorStars || [])
         ];
-        const huaStars = allStars.filter(s => s.mutagen).map(s => ({
+        const starNames = allPalaceStars.map(s => s.name.replace('星',''));
+        const mainStars = starNames.filter(n => MAIN_STAR_NAMES.has(n));
+        const huaStars = allPalaceStars.filter(s => s.mutagen).map(s => ({
           name: s.name.replace('星',''),
           mutagen: s.mutagen
         }));
-        // 煞星 & 助星分類
-        const SHA_SET = new Set(['擎羊','陀羅','火星','鈴星','地空','地劫']);
-        const ZHU_SET = new Set(['文昌','文曲','左輔','右弼','天魁','天鉞','祿存','天馬']);
-        const minorNames = (palace?.minorStars || []).map(s => s.name.replace('星',''));
-        const shaStars = minorNames.filter(n => SHA_SET.has(n));
-        const zhuStars = minorNames.filter(n => ZHU_SET.has(n));
+        const shaStars = starNames.filter(n => SHA_SET.has(n));
+        const zhuStars = starNames.filter(n => ZHU_SET.has(n));
         palaceStars[pName] = { stars: mainStars, hua: huaStars, sha: shaStars, zhu: zhuStars };
       }
 
@@ -860,8 +862,8 @@ async function buildPalaceGrid() {
           const range = p?.decadal?.range;
           if (range && currentAge >= range[0] && currentAge < range[1]) {
             const displayName = pk === '官祿宮' ? '事業宮' : pk;
-            const dStars = (p.decadal?.majorStars || p.majorStars || [])
-              .filter(s => s.type === 'major').map(s => s.name.replace('星',''));
+            const dAllStars = [...(p.decadal?.majorStars || []), ...(p.majorStars || [])];
+            const dStars = [...new Set(dAllStars.map(s => s.name.replace('星','')))].filter(n => MAIN_STAR_NAMES.has(n));
             const dHua = (p.decadal?.majorStars || [])
               .filter(s => s.mutagen)
               .map(s => ({ name: s.name.replace('星',''), mutagen: s.mutagen }));
@@ -919,9 +921,9 @@ async function buildPalaceGrid() {
           const p = astrolabe.palace(pk);
           if (p?.earthlyBranch === currentBranch) {
             yearlyPalaceName = pk === '官祿宮' ? '事業宮' : pk;
-            yearlyStars = (p.majorStars || [])
-              .filter(s => s.type === 'major')
-              .map(s => s.name.replace('星',''));
+            yearlyStars = [...(p.majorStars||[]), ...(p.minorStars||[])]
+              .map(s => s.name.replace('星',''))
+              .filter(n => MAIN_STAR_NAMES.has(n));
             const yearlyAllStars = [...(p.majorStars||[]), ...(p.minorStars||[])];
             yearlyHua = yearlyAllStars.filter(s => s.mutagen).map(s => ({
               name: s.name.replace('星',''), mutagen: s.mutagen
