@@ -259,6 +259,33 @@ body {
 .hua-note-quan { background:rgba(59,130,246,.06); color:rgba(147,197,253,.7); }
 .hua-note-ke { background:rgba(234,179,8,.06); color:rgba(253,230,138,.7); }
 .hua-note-ji { background:rgba(239,68,68,.08); color:rgba(252,165,165,.8); }
+
+/* ── 煞星 / 助星標籤 ── */
+.minor-stars-row {
+  display:flex; flex-wrap:wrap; gap:6px;
+  margin-top:12px;
+}
+.sha-tag {
+  display:inline-flex; align-items:center; gap:3px;
+  font-size:11px; padding:2px 8px; border-radius:6px;
+  background:rgba(239,68,68,.08);
+  border:1px solid rgba(239,68,68,.2);
+  color:rgba(252,165,165,.75);
+}
+.zhu-tag {
+  display:inline-flex; align-items:center; gap:3px;
+  font-size:11px; padding:2px 8px; border-radius:6px;
+  background:rgba(234,179,8,.07);
+  border:1px solid rgba(234,179,8,.2);
+  color:rgba(253,230,138,.75);
+}
+.minor-note {
+  margin-top:8px;
+  font-size:12px; line-height:1.75;
+  padding:8px 12px; border-radius:8px;
+  background:rgba(255,255,255,.03);
+  color:rgba(255,255,255,.35);
+}
 </style>
 </head>
 <body>
@@ -803,7 +830,13 @@ async function buildPalaceGrid() {
           name: s.name.replace('星',''),
           mutagen: s.mutagen
         }));
-        palaceStars[pName] = { stars: mainStars, hua: huaStars };
+        // 煞星 & 助星分類
+        const SHA_SET = new Set(['擎羊','陀羅','火星','鈴星','地空','地劫']);
+        const ZHU_SET = new Set(['文昌','文曲','左輔','右弼','天魁','天鉞','祿存','天馬']);
+        const minorNames = (palace?.minorStars || []).map(s => s.name.replace('星',''));
+        const shaStars = minorNames.filter(n => SHA_SET.has(n));
+        const zhuStars = minorNames.filter(n => ZHU_SET.has(n));
+        palaceStars[pName] = { stars: mainStars, hua: huaStars, sha: shaStars, zhu: zhuStars };
       }
 
       // ── 大限計算 ──
@@ -959,6 +992,26 @@ async function buildPalaceGrid() {
     }
   }
 
+  // ── 煞星 / 助星 莫子語意 ──
+  const MINOR_STAR_NOTE = {
+    // 煞星
+    '擎羊': '這個宮位帶有鋒芒——你在這裡容易衝過頭，但也有旁人沒有的勇氣和突破力。',
+    '陀羅': '這個宮位容易反覆、拖延、自我糾纏——不是你不夠努力，是你需要更長的時間才能轉過來。',
+    '火星': '這個宮位有突如其來的爆發能量——意外的變動可能帶來麻煩，也可能帶來意想不到的突破。',
+    '鈴星': '這個宮位有暗中積累的壓力——事情不會大爆炸，但你會在某個時間點突然感覺撐不住。需要找到出口。',
+    '地空': '這個宮位容易有落空感——你投入了，但結果可能不如預期。莫子說：地空是靈魂在教你「不執著於結果」的地方。',
+    '地劫': '這個宮位容易有突發的破耗或意外——不一定是壞事，但你需要有彈性，不要把這裡的計畫排得太死。',
+    // 助星
+    '文昌': '這個宮位有文昌加持——才華、文字、考試、表達能力在這裡比較容易被看見和發揮。',
+    '文曲': '這個宮位有文曲相伴——藝術感、口才、情感表達在這裡特別有能量，是你的天賦入口之一。',
+    '左輔': '這個宮位有貴人在旁——你在這個生命領域裡比一般人更容易得到他人的支持和協助。',
+    '右弼': '這個宮位有右弼相助——背後有人在默默撐著你，即使你感覺不到，這裡的能量是有人幫你扛的。',
+    '天魁': '這個宮位有天魁貴人——在這個領域容易遇到比你年長、有資源、願意提攜你的人。',
+    '天鉞': '這個宮位有天鉞貴人——在這個領域容易得到貴人的暗中相助，有時候是不知道從哪裡來的好運。',
+    '祿存': '這個宮位有祿存坐守——財富和資源在這裡有一定的保護力，不容易大起大落。',
+    '天馬': '這個宮位有驛馬——動、移動、變化是這個宮位的主旋律。靜下來反而讓能量卡住，走出去才能流動。'
+  };
+
   // 四化 helper
   const HUA_CSS = { '化祿':'hua-lu', '化權':'hua-quan', '化科':'hua-ke', '化忌':'hua-ji' };
   const HUA_EMOJI = { '化祿':'🟢', '化權':'🔵', '化科':'🟡', '化忌':'🔴' };
@@ -979,6 +1032,8 @@ async function buildPalaceGrid() {
     const palaceData = palaceStars[pName];
     const stars = palaceData?.stars ?? (Array.isArray(palaceData) ? palaceData : []);
     const huaList = palaceData?.hua ?? [];
+    const shaList = palaceData?.sha ?? [];
+    const zhuList = palaceData?.zhu ?? [];
 
     const primaryStar = stars[0] || '';
     const starText = stars.length > 0
@@ -1003,6 +1058,18 @@ async function buildPalaceGrid() {
       return noteText ? `<div class="hua-note ${noteCls}">${noteText}</div>` : '';
     }).join('');
 
+    // 煞星 / 助星標籤 HTML
+    const shaTagsHtml = shaList.map(n => `<span class="sha-tag">⚡ ${n}</span>`).join('');
+    const zhuTagsHtml = zhuList.map(n => `<span class="zhu-tag">✦ ${n}</span>`).join('');
+    const minorRowHtml = (shaList.length + zhuList.length > 0)
+      ? `<div class="minor-stars-row">${shaTagsHtml}${zhuTagsHtml}</div>` : '';
+
+    // 煞星 / 助星注解 HTML
+    const minorNotesHtml = [...shaList, ...zhuList].map(n => {
+      const note = MINOR_STAR_NOTE[n];
+      return note ? `<div class="minor-note">${note}</div>` : '';
+    }).join('');
+
     const card = document.createElement('div');
     card.className = 'palace-card';
     card.innerHTML = `
@@ -1018,6 +1085,8 @@ async function buildPalaceGrid() {
       <p class="palace-domain">${content.domain}</p>
       <p class="palace-body">${bodyText}</p>
       ${huaNotesHtml}
+      ${minorRowHtml}
+      ${minorNotesHtml}
     `;
     grid.appendChild(card);
   }
