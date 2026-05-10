@@ -237,6 +237,28 @@ body {
   color:rgba(255,255,255,.08);
   pointer-events:none; z-index:0;
 }
+
+/* ── 四化標籤 ── */
+.hua-tag {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:11px; padding:2px 8px; border-radius:6px;
+  margin-left:6px;
+}
+.hua-lu { background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.3); color:#86efac; }
+.hua-quan { background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.3); color:#93c5fd; }
+.hua-ke { background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.3); color:#fde68a; }
+.hua-ji { background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3); color:#fca5a5; }
+
+.hua-note {
+  margin-top:10px;
+  font-size:12px; line-height:1.75;
+  padding:8px 12px;
+  border-radius:8px;
+}
+.hua-note-lu { background:rgba(34,197,94,.06); color:rgba(134,239,172,.7); }
+.hua-note-quan { background:rgba(59,130,246,.06); color:rgba(147,197,253,.7); }
+.hua-note-ke { background:rgba(234,179,8,.06); color:rgba(253,230,138,.7); }
+.hua-note-ji { background:rgba(239,68,68,.08); color:rgba(252,165,165,.8); }
 </style>
 </head>
 <body>
@@ -651,12 +673,63 @@ async function buildPalaceGrid() {
         const mainStars = (palace?.majorStars || [])
           .filter(s => s.type === 'major')
           .map(s => s.name.replace('星',''));
-        palaceStars[pName] = mainStars;
+        const allStars = [
+          ...(palace?.majorStars || []),
+          ...(palace?.minorStars || [])
+        ];
+        const huaStars = allStars.filter(s => s.mutagen).map(s => ({
+          name: s.name.replace('星',''),
+          mutagen: s.mutagen
+        }));
+        palaceStars[pName] = { stars: mainStars, hua: huaStars };
+      }
+
+      // 也收集命宮的四化
+      const mingPalace = astrolabe.palace('命宮');
+      if (mingPalace) {
+        const mingAll = [
+          ...(mingPalace.majorStars || []),
+          ...(mingPalace.minorStars || [])
+        ];
+        const mingHua = mingAll.filter(s => s.mutagen).map(s => ({
+          name: s.name.replace('星',''),
+          mutagen: s.mutagen
+        }));
+        if (mingHua.length > 0) {
+          const huaMap = { '化祿':'hua-lu', '化權':'hua-quan', '化科':'hua-ke', '化忌':'hua-ji' };
+          const noteMap = {
+            '化祿': (n) => `✦ ${n}化祿入命宮——這個生命領域的能量流動順暢，是你的福澤所在。`,
+            '化權': (n) => `✦ ${n}化權入命宮——這個生命領域的能量特別強，你在這裡有掌控力，也要注意不要過度掌控。`,
+            '化科': (n) => `✦ ${n}化科入命宮——這個生命領域容易得到貴人相助，你的才能在這裡容易被看見。`,
+            '化忌': (n) => `⚠ ${n}化忌入命宮——這個生命領域需要多一份覺察，是靈魂這一世重點學習的功課。`
+          };
+          const mingHuaHtml = mingHua.map(h => {
+            const cls = huaMap[h.mutagen] || '';
+            const noteText = noteMap[h.mutagen] ? noteMap[h.mutagen](h.name) : '';
+            const noteCls = cls.replace('hua-','hua-note-');
+            return `<div class="hua-note ${noteCls}">${noteText}</div>`;
+          }).join('');
+          const subtitleEl = document.getElementById('star-subtitle');
+          if (subtitleEl && mingHuaHtml) {
+            subtitleEl.insertAdjacentHTML('afterend', `<div style="margin-top:12px;">${mingHuaHtml}</div>`);
+          }
+        }
       }
     } catch(err) {
       console.warn('iztro error, using fallback', err);
     }
   }
+
+  // 四化 helper
+  const HUA_CSS = { '化祿':'hua-lu', '化權':'hua-quan', '化科':'hua-ke', '化忌':'hua-ji' };
+  const HUA_EMOJI = { '化祿':'🟢', '化權':'🔵', '化科':'🟡', '化忌':'🔴' };
+  const HUA_NOTE_CSS = { '化祿':'hua-note-lu', '化權':'hua-note-quan', '化科':'hua-note-ke', '化忌':'hua-note-ji' };
+  const HUA_NOTE_TEXT = {
+    '化祿': (n, p) => `✦ ${n}化祿入此宮——這個生命領域的能量流動順暢，是你的福澤所在。`,
+    '化權': (n, p) => `✦ ${n}化權入此宮——這個生命領域的能量特別強，你在這裡有掌控力，也要注意不要過度掌控。`,
+    '化科': (n, p) => `✦ ${n}化科入此宮——這個生命領域容易得到貴人相助，你的才能在這裡容易被看見。`,
+    '化忌': (n, p) => `⚠ ${n}化忌入此宮——這個生命領域需要多一份覺察，是靈魂這一世重點學習的功課。`
+  };
 
   // render cards
   grid.innerHTML = '';
@@ -664,7 +737,10 @@ async function buildPalaceGrid() {
     const content = PALACE_STAR_CONTENT[pName];
     if (!content) continue;
 
-    const stars = palaceStars[pName] || [];
+    const palaceData = palaceStars[pName];
+    const stars = palaceData?.stars ?? (Array.isArray(palaceData) ? palaceData : []);
+    const huaList = palaceData?.hua ?? [];
+
     const primaryStar = stars[0] || '';
     const starText = stars.length > 0
       ? stars.join('、') + '星'
@@ -674,6 +750,20 @@ async function buildPalaceGrid() {
       || content.stars['']
       || `${pName}的解讀將根據你的命盤計算後呈現。`;
 
+    // 四化標籤 HTML
+    const huaTagsHtml = huaList.map(h => {
+      const cls = HUA_CSS[h.mutagen] || '';
+      const emoji = HUA_EMOJI[h.mutagen] || '';
+      return `<span class="hua-tag ${cls}">${emoji} ${h.name}${h.mutagen}</span>`;
+    }).join('');
+
+    // 四化說明文字 HTML
+    const huaNotesHtml = huaList.map(h => {
+      const noteCls = HUA_NOTE_CSS[h.mutagen] || '';
+      const noteText = HUA_NOTE_TEXT[h.mutagen] ? HUA_NOTE_TEXT[h.mutagen](h.name, pName) : '';
+      return noteText ? `<div class="hua-note ${noteCls}">${noteText}</div>` : '';
+    }).join('');
+
     const card = document.createElement('div');
     card.className = 'palace-card';
     card.innerHTML = `
@@ -682,10 +772,13 @@ async function buildPalaceGrid() {
           <span class="palace-icon">${content.icon}</span>
           <span class="palace-name">${pName}</span>
         </div>
-        <span class="palace-star-tag">${starText}</span>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:4px;">
+          <span class="palace-star-tag">${starText}</span>${huaTagsHtml}
+        </div>
       </div>
       <p class="palace-domain">${content.domain}</p>
       <p class="palace-body">${bodyText}</p>
+      ${huaNotesHtml}
     `;
     grid.appendChild(card);
   }
