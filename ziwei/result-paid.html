@@ -289,6 +289,13 @@ body {
     <p class="palace-hint-block" id="palace-hint"></p>
   </div>
 
+  <!-- 流年解讀 -->
+  <div class="section-card" id="yearly-section" style="display:none;">
+    <p class="section-label">流年解讀 · <span id="yearly-year">今年</span>的靈魂觸發點</p>
+    <div id="yearly-meta" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;"></div>
+    <p class="section-body" id="yearly-body"></p>
+  </div>
+
   <!-- 當前大限 -->
   <div class="section-card" id="decadal-section" style="display:none;">
     <p class="section-label">當前大限 · 本十年靈魂課題</p>
@@ -331,6 +338,60 @@ body {
 
 <script src="stars-data.js"></script>
 <script>
+// ═══════════════════════════════════════════════
+//  流年宮位詮釋（12 宮 × 莫子觀點）
+// ═══════════════════════════════════════════════
+const YEARLY_CONTENT = {
+  '命宮': {
+    keyword: '自我覺醒',
+    body: `流年命宮，今年你自己就是主角。這一年的事件，幾乎都會直接觸碰到你的核心自我——你是誰、你要什麼、你如何看待自己。\n\n今年特別容易出現「讓你重新認識自己」的時刻：可能是一個機會、一次考驗，或者一段關係的改變，讓你看見自己以前沒有看見的部分。\n\n莫子說：流年命宮是靈魂把課題擺在正面的一年——你無法繞開，只能面對。配合大限的背景，今年的事件往往是你這整個十年課題的「縮影」。`
+  },
+  '兄弟宮': {
+    keyword: '合作與資源',
+    body: `流年行至兄弟宮，今年的能量場圍繞著「合作、平輩關係和資源流動」展開。\n\n今年你容易在同事、合夥人、手足或同齡友人身上，遇到值得深入的機會或考驗。如果有合作計畫在今年談，成功率比其他時候高。但也要注意：資源共享的地方，也是是非容易產生的地方。\n\n今年的觸發點：留意身邊平輩的動態，他們的動向和你的運勢直接相關。有人能成為你的助力——你需要主動去靠近。`
+  },
+  '夫妻宮': {
+    keyword: '親密關係',
+    body: `流年行至夫妻宮，今年感情和親密關係是你最活躍的課題。不管你現在的狀態是什麼，這一年的事件往往會直接碰觸到你對「親密連結」的信念。\n\n單身的人，今年的桃花能量比較旺，容易有值得認真的相遇。已有伴侶的人，這一年是關係深化（或重新校正）的重要節點。\n\n今年的觸發點：你的伴侶（或讓你心動的人），是今年最精準的命盤鏡子。他們讓你有強烈感受的事，往往是你自己最需要看清楚的東西。`
+  },
+  '子女宮': {
+    keyword: '創造與表達',
+    body: `流年行至子女宮，今年的能量往「創造、作品和表達」流動。這一年你特別容易有創作的衝動，或者一個想要「生出什麼東西」的強烈念頭——可能是一個作品、一個計畫、一個品牌，或者真的是迎接新生命。\n\n今年也是你和孩子（或年輕一代）關係最活躍的一年。如果你是創作者或教育者，今年的狀態比平時更有能量、更容易找到受眾。\n\n今年的觸發點：有沒有一件你一直想做但一直拖著的創作？今年是開始的好時機。`
+  },
+  '財帛宮': {
+    keyword: '財富流動',
+    body: `流年行至財帛宮，今年的金錢能量比平時活躍。這一年容易有意想不到的財務機會，或者收入結構上的重要變化。\n\n但財帛宮流年同時也是「考你的金錢信念」的一年——你對豐盛的態度，今年會被放大。如果你對錢有很多恐懼或限制性信念，今年這些東西容易以實際的財務事件呈現出來。\n\n今年的觸發點：注意今年在財務上出現的「出乎意料」，不管是意外之財還是意外的支出，都有東西可以看。配合四化的方向，會更清楚這一年錢在哪裡流動。`
+  },
+  '疾厄宮': {
+    keyword: '身體與能量',
+    body: `流年行至疾厄宮，今年你的身體和能量狀態特別值得關注。這一年身體的訊號比較明顯——不是說你會生病，而是說你的身體會更直接地告訴你：你的能量在哪裡用對了，在哪裡用錯了。\n\n今年如果出現持續的疲憊、特定部位的不舒服，先別只往醫療方向走——問問自己：我最近有什麼情緒一直沒有流動？有什麼事讓我每天醒來都覺得沉？\n\n今年的觸發點：把身體的狀態當作指南針，而不是麻煩。今年最好的投資，是好好照顧你的能量系統。`
+  },
+  '遷移宮': {
+    keyword: '外部世界',
+    body: `流年行至遷移宮，今年的能量往「外部世界、移動、陌生環境」流動。這一年出外的機會多、變動的頻率高，容易有跨城市、跨領域，甚至跨國的機緣出現。\n\n遷移宮流年也是今年「在外闖蕩」最有能量的時候——如果你有想要拓展的計畫，今年走出去的效果會比留在原地強。\n\n今年的觸發點：如果有一個機會需要你「離開熟悉的地方」，今年比其他年份更值得認真考慮。流年遷移宮的人，往往發現最重要的事，發生在他們離開舒適圈之後。`
+  },
+  '交友宮': {
+    keyword: '貴人與人脈',
+    body: `流年行至交友宮，今年你的人際網絡是最重要的能量來源。這一年特別容易出現「改變你方向的人」——一個貴人、一段合作、一個在對的時間出現在你生命裡的人。\n\n交友宮流年也意味著，你的選擇和行動，今年會透過「人」產生最大的影響力。如果你想要什麼，先問：我需要認識什麼樣的人？\n\n今年的觸發點：主動參與一個新的圈子或社群。今年你的貴人不會主動找上門——你需要讓自己被找到。`
+  },
+  '事業宮': {
+    keyword: '工作與天賦',
+    body: `流年行至事業宮（官祿宮），今年在工作和事業上的能量特別強。這一年你的努力比平時更容易被看見、被認可，也更容易遇到職業上的重要機會或轉折點。\n\n如果你一直想要轉職、升遷、創業、或者讓你的天賦被更多人看到，今年是值得放膽嘗試的一年。\n\n今年的觸發點：工作上如果有一個需要你多出一步的機會，別等到「準備好了再說」。流年事業宮的人，今年最大的可惜，往往是那個沒有去試的機會。`
+  },
+  '田宅宮': {
+    keyword: '家庭與根基',
+    body: `流年行至田宅宮，今年「家」和「根基」相關的事件容易浮出台面。可能是住所的異動（搬家、購屋、裝修），也可能是家庭關係出現重要的轉化節點。\n\n田宅宮流年也是你今年「需要往回看原生家庭」的訊號——有時候是因為家人的狀況，有時候是因為你自己突然想起一些舊的東西。\n\n今年的觸發點：今年在「家」這件事上投入的能量，都不會白費。如果你一直想要改善居住空間或家庭關係，今年是好時機。`
+  },
+  '福德宮': {
+    keyword: '內心與靈性',
+    body: `流年行至福德宮，今年你的內心世界和精神狀態特別敏感，也特別需要被滋養。這一年你可能對靈性、冥想、心理成長，或者「生命的意義是什麼」這類問題，比平時更有共鳴。\n\n福德宮流年也是你今年「需要好好休息」的訊號。不是身體的休息，而是精神上允許自己有空白。今年太追逐外在目標，反而容易空洞；把時間留給內在，反而會發現更清晰的方向。\n\n今年的觸發點：今年有沒有一件讓你的靈魂真正感到快樂的事？如果有，多做。如果沒有，今年就是找到它的一年。`
+  },
+  '父母宮': {
+    keyword: '原生與權威',
+    body: `流年行至父母宮，今年與父母、長輩、或者「權威關係」有關的事件容易成為觸發點。可能是父母的健康或狀況、也可能是你在職場或生活中與「上位者」的互動模式，今年特別清晰。\n\n父母宮流年也是你今年「和自己的原生家庭信念」相遇的時機。某些從家庭帶出來的慣性，今年會出現在你眼前，讓你有機會選擇是要繼續跟著走，還是放下。\n\n今年的觸發點：如果今年出現了讓你想起父母或童年的情境，不要急著轉移注意力。那個感覺背後有東西值得你看一看。`
+  }
+};
+
 // ═══════════════════════════════════════════════
 //  大限宮位詮釋（12 宮 × 莫子觀點）
 // ═══════════════════════════════════════════════
@@ -802,6 +863,64 @@ async function buildPalaceGrid() {
         }
       } catch(decErr) {
         console.warn('大限計算失敗', decErr);
+      }
+
+      // ── 流年計算 ──
+      try {
+        const currentYear = new Date().getFullYear();
+        // 地支對照：子=0, 丑=1, ..., 亥=11（以西元4年=子年為基準）
+        const yearBranches = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+        const currentBranch = yearBranches[((currentYear - 4) % 12 + 12) % 12];
+
+        let yearlyPalaceName = null;
+        let yearlyStars = [];
+        let yearlyHua = [];
+
+        // 找出今年地支對應的宮位 → 即為流年命宮
+        for (const pk of allPalaceKeys) {
+          const p = astrolabe.palace(pk);
+          if (p?.earthlyBranch === currentBranch) {
+            yearlyPalaceName = pk === '官祿宮' ? '事業宮' : pk;
+            yearlyStars = (p.majorStars || [])
+              .filter(s => s.type === 'major')
+              .map(s => s.name.replace('星',''));
+            const yearlyAllStars = [...(p.majorStars||[]), ...(p.minorStars||[])];
+            yearlyHua = yearlyAllStars.filter(s => s.mutagen).map(s => ({
+              name: s.name.replace('星',''), mutagen: s.mutagen
+            }));
+            break;
+          }
+        }
+
+        if (yearlyPalaceName && YEARLY_CONTENT[yearlyPalaceName]) {
+          const content = YEARLY_CONTENT[yearlyPalaceName];
+          const huaMap = { '化祿':'hua-lu','化權':'hua-quan','化科':'hua-ke','化忌':'hua-ji' };
+          const huaEmoji = { '化祿':'🟢','化權':'🔵','化科':'🟡','化忌':'🔴' };
+
+          document.getElementById('yearly-year').textContent = currentYear + '年';
+
+          const yMetaEl = document.getElementById('yearly-meta');
+          yMetaEl.innerHTML = `
+            <span class="palace-star-tag" style="font-size:13px;padding:5px 14px;">
+              流年${yearlyPalaceName}
+            </span>
+            <span style="font-size:12px;color:rgba(255,255,255,.3);">
+              ${currentYear}年 · ${currentBranch}年
+            </span>
+            ${yearlyStars.length > 0
+              ? `<span class="palace-star-tag">${yearlyStars.join('、')}星</span>`
+              : ''}
+            ${yearlyHua.map(h =>
+              `<span class="hua-tag ${huaMap[h.mutagen]||''}">${huaEmoji[h.mutagen]||''}${h.name}${h.mutagen}</span>`
+            ).join('')}
+            <span style="font-size:11px;letter-spacing:2px;color:rgba(167,139,250,.5);margin-left:4px;">${content.keyword}</span>
+          `;
+
+          document.getElementById('yearly-body').textContent = content.body;
+          document.getElementById('yearly-section').style.display = 'block';
+        }
+      } catch(yearlyErr) {
+        console.warn('流年計算失敗', yearlyErr);
       }
 
       // 也收集命宮的四化
